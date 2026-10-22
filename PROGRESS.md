@@ -60,7 +60,7 @@ Quy tắc chung:
 | Bước | Nội dung | Đề mục | Thời lượng | Trạng thái |
 |---|---|---|---|---|
 | 1 | Khởi tạo repo + 2 project | 7 | 20' | ✅ |
-| 2 | CSDL: entity, DbContext, migration, seed | 3, 4 | 40' | ⬜ |
+| 2 | CSDL: entity, DbContext, migration, seed | 3, 4 | 40' | ✅ |
 | 3 | Nền backend: cấu hình, JWT, Swagger, lỗi | 2, 3 | 25' | ⬜ |
 | 4 | OTP + gửi Email + gửi SMS qua gateway | 1, 2 | 45' | ⬜ |
 | 5 | API xác thực: đăng ký, đăng nhập, Google, bổ sung liên hệ | 1, 2 | 45' | ⬜ |
@@ -134,24 +134,24 @@ Quy tắc chung:
 
 Thư mục: `Data/`, `Entities/`.
 
-- [ ] 2.1 Enum: `Role` (Admin, Manager, Employee) · `UserStatus` (Pending, Active, Locked) · `OtpChannel` (Email, Sms) · `OtpPurpose` (Register, Login, AddContact) · `AttendanceStatus` (OnTime, Late, PendingReview). Lưu enum dạng **chuỗi** (`HasConversion<string>()`)
-- [ ] 2.2 Entity `User`: `Id`, `Username`, `Email?`, `EmailVerified`, `PhoneNumber?`, `PhoneVerified`, `PasswordHash`, `FullName`, `Role`, `PositionId?`, `DepartmentId?`, `Status`, `GoogleSub?`, `FaceEmbedding?` (chuỗi JSON), `CreatedAt`
-- [ ] 2.3 Entity `Department` (`Id`, `Name`, `ManagerId?`) · `Position` (`Id`, `Name`, `RoleGroup`) · `Shift` (`Id`, `Name`, `StartTime`, `EndTime`)
-- [ ] 2.4 Entity `Attendance`: `Id`, `UserId`, `ShiftId?`, `CheckInAt`, `CheckOutAt?`, `Lat`, `Lng`, `IsMocked`, `QrValid`, `FaceMatched`, `TrustScore`, `Status`
-- [ ] 2.5 Entity `OtpCode`: `Id`, `UserId`, `Channel`, `Destination`, `CodeHash`, `Purpose`, `ExpiresAt`, `Attempts`, `IsUsed`, `GatewayMessageId?`, `CreatedAt`
-- [ ] 2.6 ⭐ Entity `Location` (`Id`, `Name`, `Lat`, `Lng`, `RadiusMeters`) · `LeaveRequest` (`Id`, `UserId`, `FromDate`, `ToDate`, `Reason`, `Status`, `ApprovedBy?`)
-- [ ] 2.7 `AppDbContext` cấu hình:
+- [x] 2.1 Enum: `Role` (Admin, Manager, Employee) · `UserStatus` (Pending, Active, Locked) · `OtpChannel` (Email, Sms) · `OtpPurpose` (Register, Login, AddContact) · `AttendanceStatus` (OnTime, Late, PendingReview). Lưu enum dạng **chuỗi** (`HasConversion<string>()`)
+- [x] 2.2 Entity `User`: `Id`, `Username`, `Email?`, `EmailVerified`, `PhoneNumber?`, `PhoneVerified`, `PasswordHash`, `FullName`, `Role`, `PositionId?`, `DepartmentId?`, `Status`, `GoogleSub?`, `FaceEmbedding?` (chuỗi JSON), `CreatedAt`
+- [x] 2.3 Entity `Department` (`Id`, `Name`, `ManagerId?`) · `Position` (`Id`, `Name`, `RoleGroup`) · `Shift` (`Id`, `Name`, `StartTime`, `EndTime`)
+- [x] 2.4 Entity `Attendance`: `Id`, `UserId`, `ShiftId?`, `CheckInAt`, `CheckOutAt?`, `Lat`, `Lng`, `IsMocked`, `QrValid`, `FaceMatched`, `TrustScore`, `Status`
+- [x] 2.5 Entity `OtpCode`: `Id`, `UserId`, `Channel`, `Destination`, `CodeHash`, `Purpose`, `ExpiresAt`, `Attempts`, `IsUsed`, `GatewayMessageId?`, `CreatedAt`
+- [x] 2.6 ⭐ Entity `Location` (`Id`, `Name`, `Lat`, `Lng`, `RadiusMeters`) · `LeaveRequest` (`Id`, `UserId`, `FromDate`, `ToDate`, `Reason`, `Status`, `ApprovedBy?`)
+- [x] 2.7 `AppDbContext` cấu hình:
   - Unique `Username`
   - Unique **có lọc**: `Email` với `HasFilter("[Email] IS NOT NULL")`, `PhoneNumber` với `HasFilter("[PhoneNumber] IS NOT NULL")`
   - CHECK: `[Email] IS NOT NULL OR [PhoneNumber] IS NOT NULL`
   - FK `User → Position`, `User → Department` (`OnDelete Restrict`)
-- [ ] 2.8 Seed (`HasData` hoặc `DbSeeder` chạy lúc khởi động):
+- [x] 2.8 Seed (`HasData` hoặc `DbSeeder` chạy lúc khởi động):
   - Positions — Manager: Trưởng phòng Nhân sự, Quản lý Kho, Quản lý Tài chính · Employee: Kế toán, Thủ kho, Lễ tân, Bảo vệ, Lao công
   - 1 phòng ban, 1 ca (08:00–17:00)
   - `admin` (Role Admin, mật khẩu từ cấu hình `Seed:AdminPassword`, hash BCrypt, SĐT từ `Seed:AdminPhone`, `PhoneVerified = true`), `manager1`, `employee1`
   - **Không hash BCrypt trong `HasData`** (mỗi lần build ra hash khác → migration đổi liên tục) → seed user bằng `DbSeeder` lúc khởi động
-- [ ] 2.9 Chuỗi kết nối đọc từ `ConnectionStrings:Default` (`appsettings.Development.json`, có `TrustServerCertificate=True`)
-- [ ] 2.10 `dotnet ef migrations add Init` → `dotnet ef database update`
+- [x] 2.9 Chuỗi kết nối đọc từ `ConnectionStrings:Default` (`appsettings.Development.json`, có `TrustServerCertificate=True`)
+- [x] 2.10 `dotnet ef migrations add Init` → `dotnet ef database update`
 
 **Kiểm tra:** mở SSMS thấy đủ bảng, có index lọc + CHECK; chạy app → có 3 user seed; thử insert user trống cả Email lẫn SĐT → bị chặn.
 **Commit:** `feat(db): entity, migration Init, seed admin + chuc vu`
@@ -495,3 +495,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 14:30 | 0 | dotnet 10, git, dotnet-ef, Flutter OK. Thiếu `gh`; SQL Auth/TCP 1433 + gateway `/health` chưa kiểm tra |
 | 14:45 | 1 | Backend + Flutter tạo xong; `dotnet build` 0 cảnh báo; `flutter build apk --debug` OK khi đặt `TEMP=C:\tmp` (TEMP có dấu cách làm Gradle lỗi "Unable to establish loopback connection"). Commit local, chưa push vì chưa có repo |
 | 15:10 | 1 | Tạo repo public `nguyenthanhloi727-cell/chamcong-touchgrass`, push `main` OK. Máy là của Phú → remote URL có sẵn username Lợi, không đụng credential của Phú |
+| 15:50 | 2 | 8 entity + migration Init + DbSeeder OK. Test bằng `.\SQLEXPRESS` Windows Auth: đủ 8 bảng, 2 index lọc, CHECK chặn user trống Email+SĐT, seed 3 user + 8 chức vụ. `ConnectionStrings:Default` trong appsettings.Development.json còn trống (Lợi tự điền SQL Auth); Seed:*Email/*Phone trống → user seed dùng email giả chưa xác nhận, cần điền trước Bước 5 |

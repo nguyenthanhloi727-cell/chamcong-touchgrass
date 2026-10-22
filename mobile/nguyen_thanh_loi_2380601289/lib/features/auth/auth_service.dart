@@ -45,6 +45,13 @@ class AuthService {
     return null;
   }
 
+  /// Thêm / xác nhận liên hệ cho tài khoản đang đăng nhập; trả phiên OTP (AddContact).
+  Future<OtpSession> addContact(String type, String value) async {
+    final res = await api.dio
+        .post('/api/me/contact', data: {'type': type, 'value': value});
+    return OtpSession.fromJson(res.data as Map<String, dynamic>);
+  }
+
   /// Gửi lại OTP; backend trả phiên mới (cùng kênh).
   Future<OtpSession> resendOtp(int otpSessionId) async {
     final res = await api.dio

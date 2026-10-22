@@ -37,9 +37,9 @@ class DashboardShell extends StatelessWidget {
         title: Text(title),
         actions: [
           IconButton(
-            tooltip: 'Khuôn mặt',
-            icon: const Icon(Icons.face),
-            onPressed: () => context.push('/face-enroll'),
+            tooltip: 'Hồ sơ',
+            icon: const Icon(Icons.account_circle),
+            onPressed: () => context.push('/profile'),
           ),
           IconButton(
             tooltip: 'Đăng xuất',

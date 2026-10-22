@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/api/api_client.dart';
 import 'auth_service.dart';
 
-final _emailRe = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-final _phoneRe = RegExp(r'^(0\d{9}|\+84\d{9})$');
+final emailRe = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+final phoneRe = RegExp(r'^(0\d{9}|\+84\d{9})$');
 
 class RegisterPage extends StatefulWidget {
   final AuthService auth;
@@ -45,8 +45,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   String get _emailText => _email.text.trim();
   String get _phoneText => _phone.text.trim().replaceAll(' ', '');
-  bool get _emailOk => _emailRe.hasMatch(_emailText);
-  bool get _phoneOk => _phoneRe.hasMatch(_phoneText);
+  bool get _emailOk => emailRe.hasMatch(_emailText);
+  bool get _phoneOk => phoneRe.hasMatch(_phoneText);
 
   String? _bothEmpty() => (_emailText.isEmpty && _phoneText.isEmpty)
       ? 'Nhập ít nhất Email hoặc Số điện thoại'

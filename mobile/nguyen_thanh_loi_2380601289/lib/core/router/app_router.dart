@@ -19,6 +19,7 @@ import '../../features/dashboard/employee_dashboard.dart';
 import '../../features/dashboard/manager_dashboard.dart';
 import '../../features/face/face_enroll_page.dart';
 import '../../features/face/face_login_page.dart';
+import '../../features/profile/profile_page.dart';
 
 /// Màn chính theo role: Admin → /admin, Manager → /manager, còn lại → /employee.
 String homeForRole(String role) => switch (role) {
@@ -115,6 +116,22 @@ GoRouter buildRouter(SessionStore session, AuthService auth) {
         },
       ),
       GoRoute(path: '/face-login', builder: (_, _) => FaceLoginPage(auth: auth)),
+      GoRoute(
+        path: '/profile',
+        builder: (_, _) => ProfilePage(session: session, auth: auth),
+        routes: [
+          GoRoute(
+            path: 'otp',
+            builder: (context, state) {
+              final otp = state.extra;
+              if (otp is! OtpSession) {
+                return ProfilePage(session: session, auth: auth);
+              }
+              return OtpPage(auth: auth, session: otp);
+            },
+          ),
+        ],
+      ),
       GoRoute(
           path: '/face-enroll',
           builder: (_, _) => FaceEnrollPage(session: session)),

@@ -74,7 +74,7 @@ Quy tắc chung:
 | 13 | Màn CRUD (admin) | 4 | 45' | ✅ |
 | 14 | Màn chấm công: GPS + QR + kết quả điểm | 5b, 5e, 6 | 40' | ✅ |
 | 15 | Màn khuôn mặt | 5a | 45' | ✅ |
-| 16 | Màn hồ sơ: bổ sung Email/SĐT | 1 | 20' | ⬜ |
+| 16 | Màn hồ sơ: bổ sung Email/SĐT | 1 | 20' | ✅ |
 | 17 | `tool/rename.dart` | Luật đặt tên | 25' | ⬜ |
 | 18 | Test toàn luồng theo tiêu chí nghiệm thu | Tất cả | 30' | ⬜ |
 | 19 | README + đổi tên 4 thành viên + nộp | 7, luật | 30' | ⬜ |
@@ -431,9 +431,9 @@ Mỗi màn: danh sách + ô tìm kiếm, nút Thêm, bấm vào để Sửa, vu�
 
 ## Bước 16 — Màn hồ sơ: bổ sung Email/SĐT (20') · [Đề mục 1]
 
-- [ ] 16.1 Hiện Email + SĐT, mỗi dòng có nhãn **Đã xác nhận** / **Chưa xác nhận** / **Chưa có**
-- [ ] 16.2 Nút "Thêm / Xác nhận" → nhập giá trị → `POST /api/me/contact` → màn OTP dùng chung (11.2)
-- [ ] 16.3 Nút "Đăng ký khuôn mặt" (15.3)
+- [x] 16.1 Hiện Email + SĐT, mỗi dòng có nhãn **Đã xác nhận** / **Chưa xác nhận** / **Chưa có**
+- [x] 16.2 Nút "Thêm / Xác nhận" → nhập giá trị → `POST /api/me/contact` → màn OTP dùng chung (11.2)
+- [x] 16.3 Nút "Đăng ký khuôn mặt" (15.3)
 
 **Kiểm tra:** user đăng ký chỉ bằng Email → thêm SĐT → nhận SMS → xác nhận → lần đăng nhập sau OTP đi qua **SMS**.
 **Commit:** `feat(mobile-profile): bo sung va xac nhan email/sdt`
@@ -536,3 +536,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 17:30 | 13 | 5 màn CRUD admin (Phòng ban, Chức vụ, Ca làm, Nhân viên có dropdown Role→Chức vụ, Chấm công) dùng chung `CrudListPage` + `FormDialog`, route con `/admin/...`. analyze sạch, 8 test qua. Sửa lỗi `setState` trả Future làm danh sách không tải lại sau khi lưu (cả 2 dashboard Bước 12 cũng bị, đã sửa). Test máy thật 2107113SG theo quy trình A–E: thêm/sửa/xóa đủ 5 màn, đổi Role ô 1 thì ô 2 đổi đúng, lưu xong danh sách cập nhật ngay. Bỏ ⭐ 13.6. Chấm công thêm tay luôn 0đ (chỉ check-in thật ở Bước 14 mới tính điểm) |
 | 20:50 | 14 | Màn QR (đếm ngược 30s, admin đặt điểm chấm công 200 m), luồng chấm công (GPS→quét QR→gửi; chưa có face nên faceMatched=false, tối đa 65 điểm → PendingReview), màn kết quả, check-out, chia sẻ vị trí + bản đồ, màn duyệt, máy thật dùng GPS thật / emulator chọn điểm trên bản đồ. analyze sạch, 9 test qua, build APK OK, đã cài lên máy thật. **Chưa test 2 máy (quét QR → duyệt) — Lợi chọn commit trước**, kiểm tra lại ở Bước 18 |
 | 21:10 | 15 | Màn chụp mặt (camera trước, ML Kit, chớp mắt mở→nhắm→mở trong 5s), đăng ký mặt (icon trên thanh tiêu đề dashboard, màn Hồ sơ làm ở Bước 16), đăng nhập bằng mặt, check-in có bước xác minh mặt gửi `faceToken`. **Embedding dùng bản dự phòng (vector đường viền ML Kit), không dùng MobileFaceNet** (model chưa chốt nguồn/license) — ghi trong README. 15.7 (`local_auth`) không cần. analyze sạch, 15 test qua, build APK OK. Máy thật: đăng ký mặt Lợi → đăng nhập bằng mặt OK; ảnh tĩnh không qua chớp mắt; mặt người khác bị từ chối |
+| 22:00 | 16 | Màn Hồ sơ (`/profile`, mở từ icon trên thanh tiêu đề): nhãn Đã xác nhận / Chưa xác nhận / Chưa có cho Email + SĐT, nút Thêm/Xác nhận → `POST /api/me/contact` → màn OTP dùng chung (route `/profile/otp`), nút đăng ký khuôn mặt. analyze sạch, 16 test qua. Test máy thật: thêm SĐT → SMS thật → xác nhận; đăng nhập lại OTP đi qua SMS |

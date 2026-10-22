@@ -64,6 +64,7 @@ Tạo DB và chạy (từ thư mục `backend`):
 
 ```bash
 dotnet tool restore
+dotnet restore
 dotnet ef database update --project NguyenThanhLoi_2380601289.ChamCong.Api
 dotnet run --project NguyenThanhLoi_2380601289.ChamCong.Api --urls http://0.0.0.0:5000
 ```

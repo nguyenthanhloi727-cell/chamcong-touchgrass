@@ -43,7 +43,10 @@ class _ReviewPageState extends State<ReviewPage> {
   Future<void> _review(AttendanceItem a, bool approve) async {
     try {
       await _dash.review(a.id, approve: approve);
-      setState(() => _data = _load());
+      if (!mounted) return;
+      setState(() {
+        _data = _load();
+      });
     } catch (e) {
       showError(e);
     }

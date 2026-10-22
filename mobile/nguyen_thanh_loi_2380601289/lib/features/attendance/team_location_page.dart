@@ -71,7 +71,9 @@ class _TeamLocationPageState extends State<TeamLocationPage> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   final f = _api.team();
-                  setState(() => _data = f);
+                  setState(() {
+                    _data = f;
+                  });
                   await f;
                 },
                 child: ListView(children: [

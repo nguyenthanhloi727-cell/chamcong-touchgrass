@@ -18,5 +18,8 @@ public class User
     public UserStatus Status { get; set; } = UserStatus.Pending;
     public string? GoogleSub { get; set; }
     public string? FaceEmbedding { get; set; }
+    public double? LastLat { get; set; }
+    public double? LastLng { get; set; }
+    public DateTime? LastLocationAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

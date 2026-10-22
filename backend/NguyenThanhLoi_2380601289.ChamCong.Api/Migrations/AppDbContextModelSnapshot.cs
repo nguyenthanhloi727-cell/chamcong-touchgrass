@@ -296,6 +296,15 @@ namespace NguyenThanhLoi_2380601289.ChamCong.Api.Migrations
                     b.Property<string>("GoogleSub")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double?>("LastLat")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("LastLng")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime?>("LastLocationAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

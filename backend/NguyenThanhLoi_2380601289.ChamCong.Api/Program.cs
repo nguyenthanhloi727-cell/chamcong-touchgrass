@@ -49,6 +49,9 @@ builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.EmployeeAdminService>();
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.AttendanceCrudService>();
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.LeaveRequestService>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Checkin.QrService>();
+builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Checkin.CheckinService>();
 
 // JWT
 var jwt = cfg.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();

@@ -66,7 +66,7 @@ Quy tắc chung:
 | 5 | API xác thực: đăng ký, đăng nhập, Google, bổ sung liên hệ | 1, 2 | 45' | ✅ |
 | 6 | Phân quyền 2 ô + bảo vệ admin | 3 | 20' | ✅ |
 | 7 | API CRUD | 4 | 40' | ✅ |
-| 8 | API chấm công: QR, GPS, điểm tin cậy, báo cáo | 5b, 5e, 6 | 40' | ⬜ |
+| 8 | API chấm công: QR, GPS, điểm tin cậy, báo cáo | 5b, 5e, 6 | 40' | ✅ |
 | 9 | API khuôn mặt | 5a | 20' | ⬜ |
 | 10 | Nền Flutter: package, theme, API client | 7 | 25' | ⬜ |
 | 11 | Màn xác thực Flutter | 1, 2 | 50' | ⬜ |
@@ -279,17 +279,17 @@ Mỗi resource đủ: `GET list` (có tìm kiếm `?q=`), `GET {id}`, `POST`, `P
 
 ## Bước 8 — API chấm công (40') · [Đề mục 5b, 5e, 6]
 
-- [ ] 8.1 **5e – QR động:** `GET /api/qr/current` (Admin/Manager) → `token = base64(window) + "." + HMAC-SHA256(window, Qr:Secret)`, `window = unix_seconds / 30`; trả `{token, expiresIn}`
-- [ ] 8.2 Kiểm tra QR: hợp lệ nếu chữ ký đúng và `window` = hiện tại hoặc liền trước (chịu lệch 30s)
-- [ ] 8.3 **5b – GPS:** khoảng cách Haversine tới `Geofence` (hoặc `Locations` nếu làm 7.6); trong bán kính → `gpsOk`
-- [ ] 8.4 `POST /api/attendance/check-in` `{lat, lng, isMocked, qrToken, faceMatched}` → chặn check-in 2 lần cùng ca
-- [ ] 8.5 **6 – Điểm tin cậy** (trọng số đề xuất, chưa chốt): Khuôn mặt khớp **35** · GPS trong vùng **30** · QR hợp lệ **25** · Không GPS giả **10**. `isMocked = true` → điểm GPS = 0
+- [x] 8.1 **5e – QR động:** `GET /api/qr/current` (Admin/Manager) → `token = base64(window) + "." + HMAC-SHA256(window, Qr:Secret)`, `window = unix_seconds / 30`; trả `{token, expiresIn}`
+- [x] 8.2 Kiểm tra QR: hợp lệ nếu chữ ký đúng và `window` = hiện tại hoặc liền trước (chịu lệch 30s)
+- [x] 8.3 **5b – GPS:** khoảng cách Haversine tới `Geofence` (hoặc `Locations` nếu làm 7.6); trong bán kính → `gpsOk`
+- [x] 8.4 `POST /api/attendance/check-in` `{lat, lng, isMocked, qrToken, faceMatched}` → chặn check-in 2 lần cùng ca
+- [x] 8.5 **6 – Điểm tin cậy** (trọng số đề xuất, chưa chốt): Khuôn mặt khớp **35** · GPS trong vùng **30** · QR hợp lệ **25** · Không GPS giả **10**. `isMocked = true` → điểm GPS = 0
   - `TrustScore ≥ 70` → `OnTime`/`Late` theo giờ ca · `< 70` → `PendingReview`
   - Trả `{trustScore, breakdown: {face, gps, qr, notMocked}, status}`
-- [ ] 8.6 `POST /api/attendance/check-out`
-- [ ] 8.7 `POST /api/attendances/{id}/review` `{approve: bool}` (Manager/Admin) cho bản ghi `PendingReview`
-- [ ] 8.8 `GET /api/reports/monthly?month=YYYY-MM&departmentId=` → mỗi nhân viên: số ngày công, số lần muộn, số lần chờ duyệt
-- [ ] 8.9 **5b – Chia sẻ vị trí:** `POST /api/location/share` `{lat, lng}` (nhân viên) → lưu `Users.LastLat`, `LastLng`, `LastLocationAt` (thêm 3 cột bằng migration `AddLastLocation`) · `GET /api/location/team` (Manager: nhân viên phòng mình; Admin: tất cả)
+- [x] 8.6 `POST /api/attendance/check-out`
+- [x] 8.7 `POST /api/attendances/{id}/review` `{approve: bool}` (Manager/Admin) cho bản ghi `PendingReview`
+- [x] 8.8 `GET /api/reports/monthly?month=YYYY-MM&departmentId=` → mỗi nhân viên: số ngày công, số lần muộn, số lần chờ duyệt
+- [x] 8.9 **5b – Chia sẻ vị trí:** `POST /api/location/share` `{lat, lng}` (nhân viên) → lưu `Users.LastLat`, `LastLng`, `LastLocationAt` (thêm 3 cột bằng migration `AddLastLocation`) · `GET /api/location/team` (Manager: nhân viên phòng mình; Admin: tất cả)
 
 **Kiểm tra:** check-in đúng vị trí + QR mới → điểm ≥ 70 · QR cũ hơn 60s → `qr = 0` · `isMocked = true` → `PendingReview`.
 **Commit:** `feat(attendance): QR HMAC, geofence, diem tin cay, bao cao thang`
@@ -502,3 +502,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 17:10 | 6 | RbacService + EmployeesController (GET list/get theo phạm vi, PUT {id}/role) + PositionsController (?roleGroup=). 66 unit test qua. Test HTTP thật bằng JWT ký tay: employee1 → /api/employees & PUT role = 403; manager1 PUT role = 403, xem list chỉ cùng phòng; admin tự hạ = 403, Kế toán cho Manager = 400, Admin kèm chức vụ = 400, đổi hợp lệ = 200. Sửa: thêm JsonStringEnumConverter (enum Role nhận chuỗi). Admin cuối cùng → 409 chỉ test bằng unit test (chỉ có 1 admin thật) |
 | 17:40 | 6 | Vá thêm theo rà soát: JwtBearer đối chiếu role/trạng thái với DB mỗi request (token mang role cũ hoặc user bị khóa → 401, refresh ra token đúng role); báo lỗi JSON/enum sai rõ tên trường. Test HTTP: token employee1 giả role Admin → 401, token đúng → 200. Còn lại: Manager mới chưa có phòng ban chỉ thấy chính mình (gán phòng ban ở Bước 7) |
 | 15:20 | 7 | CRUD đủ GET list (?q=) / GET {id} / POST / PUT / DELETE cho departments, positions, shifts, employees, attendances, locations, leave-requests (+approve/reject); đọc mở cho mọi người đăng nhập, ghi chỉ Admin (attendances: Admin/Manager sửa, leave: chủ đơn sửa/rút khi Pending). Xóa còn bị tham chiếu → 409 kèm thông báo. Admin tạo nhân viên coi liên hệ đã xác nhận để đăng nhập được; PUT employees gán phòng ban cho Manager. 85 unit test qua. Test HTTP thật bằng JWT ký tay trên SQL Server: 201/200/204/400/403/404/409 đúng, ca StartTime ≥ EndTime = 400, manager không sửa được chấm công phòng khác (404), employee1 gọi API admin = 403; đã xóa dữ liệu test |
+| 15:30 | 8 | QrService (HMAC, cửa sổ hiện tại/liền trước), TrustScore (35/30/25/10, ngưỡng 70), Haversine, CheckinService: check-in/out, review, báo cáo tháng, chia sẻ vị trí; migration AddLastLocation; thêm AttendanceStatus.Rejected cho từ chối duyệt. 104 unit test qua. Test HTTP thật (JWT ký tay, SQL Server): QR employee = 403, check-in đủ điều kiện = 100đ, check-in lần 2 = 409, GPS giả = 60đ PendingReview, manager tự duyệt = 403, admin duyệt OK, duyệt lại = 409, báo cáo/share/team đúng; đã xóa dữ liệu test. Qr:Secret dev tự sinh; Geofence dev còn 0,0 - Lợi tự điền tọa độ thật trước khi demo (hoặc tạo Locations) |

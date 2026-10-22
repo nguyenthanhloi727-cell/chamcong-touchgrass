@@ -8,4 +8,4 @@ public enum OtpChannel { Email, Sms }
 
 public enum OtpPurpose { Register, Login, AddContact }
 
-public enum AttendanceStatus { OnTime, Late, PendingReview }
+public enum AttendanceStatus { OnTime, Late, PendingReview, Rejected }

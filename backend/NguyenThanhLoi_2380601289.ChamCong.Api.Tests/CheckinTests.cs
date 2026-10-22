@@ -22,7 +22,6 @@ public class CheckinTests
     private readonly AppDbContext _db;
     private readonly TestClock _clock = new(new DateTimeOffset(2026, 10, 22, 7, 55, 0, TimeSpan.Zero));
     private readonly QrService _qr;
-    private readonly JwtService _jwt = new(Microsoft.Extensions.Options.Options.Create(new JwtOptions { Issuer = "i", Audience = "a", Key = new string('k', 40) }));
     private readonly CheckinService _svc;
     private readonly User _admin, _manager, _employee, _otherEmployee;
     private const double Lat = 10.8, Lng = 106.7;
@@ -33,7 +32,7 @@ public class CheckinTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         _qr = new QrService(Microsoft.Extensions.Options.Options.Create(new QrOptions { Secret = "test-secret-test-secret", WindowSeconds = 30 }), _clock);
         var geo = Microsoft.Extensions.Options.Options.Create(new GeofenceOptions { Lat = Lat, Lng = Lng, RadiusMeters = 100 });
-        _svc = new CheckinService(_db, _qr, _jwt, new RbacService(_db), geo, _clock);
+        _svc = new CheckinService(_db, _qr, new RbacService(_db), geo, _clock);
 
         var a = new Department { Name = "A" };
         var b = new Department { Name = "B" };
@@ -60,8 +59,8 @@ public class CheckinTests
         catch (AppException e) { return e.StatusCode; }
     }
 
-    private CheckInRequest Req(bool face = true, bool qr = true, double lat = Lat, double lng = Lng, bool mocked = false) =>
-        new() { Lat = lat, Lng = lng, IsMocked = mocked, FaceToken = face ? _jwt.CreateFaceToken(_employee.Id, 120) : null, QrToken = qr ? _qr.Current().Token : "bad.token" };
+    private CheckInRequest Req(bool qr = true, double lat = Lat, double lng = Lng, bool mocked = false) =>
+        new() { Lat = lat, Lng = lng, IsMocked = mocked, QrToken = qr ? _qr.Current().Token : "bad.token" };
 
     // ---------- QR ----------
 
@@ -93,12 +92,13 @@ public class CheckinTests
     [Fact]
     public void Trust_Weights()
     {
-        Assert.Equal(100, TrustScore.Compute(true, true, true, false).Total);
-        var (s, b) = TrustScore.Compute(true, true, true, true);
-        Assert.Equal(60, s);
+        Assert.Equal(100, TrustScore.Compute(true, true, false).Total);
+        var (s, b) = TrustScore.Compute(true, true, true);
+        Assert.Equal(35, s);
         Assert.Equal(0, b.Gps);
         Assert.Equal(0, b.NotMocked);
-        Assert.Equal(65, TrustScore.Compute(false, true, true, false).Total);
+        Assert.Equal(65, TrustScore.Compute(true, false, false).Total);
+        Assert.Equal(55, TrustScore.Compute(false, true, false).Total);
     }
 
     [Fact]
@@ -116,7 +116,7 @@ public class CheckinTests
         var r = await _svc.CheckInAsync(_employee.Id, Req(), default);
         Assert.Equal(100, r.TrustScore);
         Assert.Equal("OnTime", r.Status);
-        Assert.Equal(new TrustBreakdownDto(35, 30, 25, 10), r.Breakdown);
+        Assert.Equal(new TrustBreakdownDto(45, 35, 20), r.Breakdown);
     }
 
     [Fact]
@@ -139,8 +139,8 @@ public class CheckinTests
     {
         var r = await _svc.CheckInAsync(_employee.Id, Req(lat: Lat + 0.01), default);
         Assert.Equal(0, r.Breakdown.Gps);
-        Assert.Equal(70, r.TrustScore);
-        Assert.Equal("OnTime", r.Status); // 70 vẫn đạt ngưỡng
+        Assert.Equal(55, r.TrustScore);
+        Assert.Equal("PendingReview", r.Status); // dưới ngưỡng 70
     }
 
     [Fact]
@@ -148,9 +148,10 @@ public class CheckinTests
     {
         var token = _qr.Current().Token;
         _clock.Now = _clock.Now.AddSeconds(65);
-        var r = await _svc.CheckInAsync(_employee.Id, new CheckInRequest { Lat = Lat, Lng = Lng, FaceToken = _jwt.CreateFaceToken(_employee.Id, 120), QrToken = token }, default);
+        var r = await _svc.CheckInAsync(_employee.Id, new CheckInRequest { Lat = Lat, Lng = Lng, QrToken = token }, default);
         Assert.Equal(0, r.Breakdown.Qr);
-        Assert.Equal(75, r.TrustScore);
+        Assert.Equal(65, r.TrustScore);
+        Assert.Equal("PendingReview", r.Status);
     }
 
     [Fact]
@@ -162,9 +163,9 @@ public class CheckinTests
     }
 
     [Fact]
-    public async Task CheckIn_NoFace_PendingReview()
+    public async Task CheckIn_BadQr_PendingReview()
     {
-        var r = await _svc.CheckInAsync(_employee.Id, Req(face: false), default);
+        var r = await _svc.CheckInAsync(_employee.Id, Req(qr: false), default);
         Assert.Equal(65, r.TrustScore);
         Assert.Equal("PendingReview", r.Status);
     }
@@ -177,7 +178,7 @@ public class CheckinTests
         var r = await _svc.CheckInAsync(_employee.Id, Req(), default); // vị trí cũ nay ngoài vùng
         Assert.Equal(0, r.Breakdown.Gps);
         var r2 = await _svc.CheckInAsync(_otherEmployee.Id, Req(lat: 20, lng: 105), default);
-        Assert.Equal(30, r2.Breakdown.Gps);
+        Assert.Equal(45, r2.Breakdown.Gps);
     }
 
     [Fact]
@@ -230,7 +231,7 @@ public class CheckinTests
 
     private async Task<int> Pending(User u)
     {
-        var r = await _svc.CheckInAsync(u.Id, Req(face: false), default);
+        var r = await _svc.CheckInAsync(u.Id, Req(qr: false), default);
         return r.AttendanceId;
     }
 
@@ -259,7 +260,7 @@ public class CheckinTests
     [Fact]
     public async Task Review_Manager_CannotSelfApprove()
     {
-        var id = (await _svc.CheckInAsync(_manager.Id, Req(face: false), default)).AttendanceId;
+        var id = (await _svc.CheckInAsync(_manager.Id, Req(qr: false), default)).AttendanceId;
         Assert.Equal(403, await StatusOf(() => _svc.ReviewAsync(_manager.Id, id, true, default)));
     }
 
@@ -272,7 +273,7 @@ public class CheckinTests
         _clock.Now = new DateTimeOffset(2026, 10, 23, 8, 30, 0, TimeSpan.Zero);
         await _svc.CheckInAsync(_employee.Id, Req(), default);                       // 23/10 muộn
         _clock.Now = new DateTimeOffset(2026, 10, 24, 8, 0, 0, TimeSpan.Zero);
-        await _svc.CheckInAsync(_employee.Id, Req(face: false), default);           // 24/10 chờ duyệt
+        await _svc.CheckInAsync(_employee.Id, Req(qr: false), default);             // 24/10 chờ duyệt
 
         var rows = await _svc.MonthlyReportAsync(_manager.Id, "2026-10", null, default);
         Assert.DoesNotContain(rows, r => r.UserId == _otherEmployee.Id); // khác phòng

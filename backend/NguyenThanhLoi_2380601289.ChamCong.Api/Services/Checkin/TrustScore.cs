@@ -1,21 +1,20 @@
 namespace NguyenThanhLoi_2380601289.ChamCong.Api.Services.Checkin;
 
-public record TrustBreakdown(int Face, int Gps, int Qr, int NotMocked);
+public record TrustBreakdown(int Gps, int Qr, int NotMocked);
 
-/// <summary>Điểm tin cậy 0-100: khuôn mặt 35 + GPS 30 + QR 25 + không GPS giả 10.</summary>
+/// <summary>Điểm tin cậy 0-100: GPS 45 + QR 35 + không GPS giả 20.</summary>
 public static class TrustScore
 {
-    public const int FacePoints = 35, GpsPoints = 30, QrPoints = 25, NotMockedPoints = 10;
+    public const int GpsPoints = 45, QrPoints = 35, NotMockedPoints = 20;
     public const int PassThreshold = 70;
 
-    public static (int Total, TrustBreakdown Breakdown) Compute(bool faceMatched, bool gpsOk, bool qrValid, bool isMocked)
+    public static (int Total, TrustBreakdown Breakdown) Compute(bool gpsOk, bool qrValid, bool isMocked)
     {
         var b = new TrustBreakdown(
-            faceMatched ? FacePoints : 0,
             gpsOk && !isMocked ? GpsPoints : 0, // GPS giả -> điểm GPS = 0
             qrValid ? QrPoints : 0,
             isMocked ? 0 : NotMockedPoints);
-        return (b.Face + b.Gps + b.Qr + b.NotMocked, b);
+        return (b.Gps + b.Qr + b.NotMocked, b);
     }
 
     public static double DistanceMeters(double lat1, double lng1, double lat2, double lng2)

@@ -11,7 +11,7 @@ using NguyenThanhLoi_2380601289.ChamCong.Api.Services.Rbac;
 namespace NguyenThanhLoi_2380601289.ChamCong.Api.Services.Checkin;
 
 /// <summary>Check-in/out (QR + GPS + điểm tin cậy), duyệt, báo cáo tháng, chia sẻ vị trí.</summary>
-public class CheckinService(AppDbContext db, QrService qr, JwtService jwt, RbacService rbac, IOptions<GeofenceOptions> geo, TimeProvider clock)
+public class CheckinService(AppDbContext db, QrService qr, RbacService rbac, IOptions<GeofenceOptions> geo, TimeProvider clock)
 {
     // Chặn bấm đúp / gửi 2 request cùng lúc vượt qua kiểm tra trùng ca (1 tiến trình backend)
     private static readonly ConcurrentDictionary<int, SemaphoreSlim> UserLocks = new();
@@ -40,8 +40,7 @@ public class CheckinService(AppDbContext db, QrService qr, JwtService jwt, RbacS
 
         var (gpsOk, distance) = await CheckGeofenceAsync(lat, lng, ct);
         var qrValid = qr.IsValid(req.QrToken);
-        var faceMatched = jwt.ValidateFaceToken(req.FaceToken, userId);
-        var (score, b) = TrustScore.Compute(faceMatched, gpsOk, qrValid, req.IsMocked);
+        var (score, b) = TrustScore.Compute(gpsOk, qrValid, req.IsMocked);
 
         var status = score < TrustScore.PassThreshold
             ? AttendanceStatus.PendingReview
@@ -50,12 +49,12 @@ public class CheckinService(AppDbContext db, QrService qr, JwtService jwt, RbacS
         var a = new Attendance
         {
             UserId = userId, ShiftId = shiftId, CheckInAt = now, Lat = lat, Lng = lng,
-            IsMocked = req.IsMocked, QrValid = qrValid, FaceMatched = faceMatched,
+            IsMocked = req.IsMocked, QrValid = qrValid,
             TrustScore = score, Status = status,
         };
         db.Attendances.Add(a);
         await db.SaveChangesAsync(ct);
-        return new CheckInResult(a.Id, score, new TrustBreakdownDto(b.Face, b.Gps, b.Qr, b.NotMocked),
+        return new CheckInResult(a.Id, score, new TrustBreakdownDto(b.Gps, b.Qr, b.NotMocked),
             status.ToString(), Math.Round(distance, 1));
     }
 

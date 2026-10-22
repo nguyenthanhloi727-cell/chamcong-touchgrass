@@ -108,7 +108,7 @@ Tài khoản được tạo bởi `DbSeeder` khi backend khởi động (mật k
    - a. Khuôn mặt: ML Kit phát hiện mặt, bắt buộc chớp mắt chống ảnh tĩnh; đăng ký mặt, đăng nhập bằng mặt, xác minh khi chấm công (`faceToken` ngắn hạn do server cấp).
    - b. GPS geofence (Haversine), phát hiện GPS giả, chia sẻ vị trí cho quản lý xem.
    - e. QR động: mã ký HMAC, đổi mỗi 30 giây, Admin hiển thị tại điểm chấm công; quét mã cũ → không hợp lệ.
-6. **Tính năng mới: Điểm tin cậy** — mỗi lần chấm công tính điểm: khuôn mặt khớp 35 + GPS trong vùng 30 + QR hợp lệ 25 + không GPS giả 10. Dưới ngưỡng 70 → `PendingReview`, quản lý duyệt hoặc từ chối.
+6. **Tính năng mới: Điểm tin cậy** — mỗi lần chấm công tính điểm: GPS trong vùng 45 + QR hợp lệ 35 + không GPS giả 20. Dưới ngưỡng 70 → `PendingReview`, quản lý duyệt hoặc từ chối.
 7. **Hồ sơ & báo cáo** — hồ sơ hiển thị Email/SĐT với nhãn Đã xác nhận / Chưa xác nhận / Chưa có, bổ sung và xác nhận liên hệ bằng OTP; dashboard riêng cho từng vai trò; báo cáo chấm công theo tháng.
 
 ## Khuôn mặt (đăng ký, đăng nhập, chấm công)

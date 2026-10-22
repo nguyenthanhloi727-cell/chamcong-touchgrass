@@ -8,11 +8,9 @@ public class CheckInRequest
     [Required, Range(-180, 180)] public double? Lng { get; set; }
     public bool IsMocked { get; set; }
     public string? QrToken { get; set; }
-    /// <summary>faceToken lấy từ /api/face/verify; server tự tính faceMatched từ token này.</summary>
-    public string? FaceToken { get; set; }
 }
 
-public record TrustBreakdownDto(int Face, int Gps, int Qr, int NotMocked);
+public record TrustBreakdownDto(int Gps, int Qr, int NotMocked);
 
 public record CheckInResult(int AttendanceId, int TrustScore, TrustBreakdownDto Breakdown, string Status, double DistanceMeters);
 

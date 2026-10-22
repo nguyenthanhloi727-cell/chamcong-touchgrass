@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../core/api/api_client.dart';
-import '../face/face_api.dart';
-import '../face/face_capture_page.dart';
 import 'attendance_api.dart';
 import 'geo_service.dart';
 
@@ -39,7 +37,7 @@ class _QrScanPageState extends State<QrScanPage> {
   }
 }
 
-/// Luồng chấm công của Nhân viên: vị trí → quét QR → (khuôn mặt, Bước 15) → gửi check-in.
+/// Luồng chấm công của Nhân viên: vị trí → quét QR → gửi check-in.
 class CheckinPage extends StatefulWidget {
   final ApiClient api;
   const CheckinPage({super.key, required this.api});
@@ -61,46 +59,25 @@ class _CheckinPageState extends State<CheckinPage> {
         defaultPoint: branches.isEmpty ? null : branches.first.point);
   }
 
-  /// Chớp mắt + so khuôn mặt; null (không kèm faceToken → faceMatched = false)
-  /// nếu người dùng thoát, mặt không khớp hoặc chưa đăng ký.
-  Future<String?> _faceToken() async {
-    final emb = await FaceCapturePage.open(context);
-    if (emb == null) return null;
-    try {
-      final r = await FaceApi(widget.api).verify(emb);
-      if (!r.matched) {
-        messengerKey.currentState?.showSnackBar(
-            const SnackBar(content: Text('Khuôn mặt không khớp, vẫn gửi chấm công')));
-      }
-      return r.faceToken;
-    } catch (e) {
-      showError(e);
-      return null;
-    }
-  }
-
   Future<void> _checkIn() async {
     setState(() {
       _busy = true;
       _result = null;
-      _step = '1/4 Lấy vị trí...';
+      _step = '1/3 Lấy vị trí...';
     });
     try {
       final fix = await _locate();
       if (fix == null || !mounted) return;
-      setState(() => _step = '2/4 Quét QR...');
+      setState(() => _step = '2/3 Quét QR...');
       final qr = await Navigator.of(context)
           .push<String>(MaterialPageRoute(builder: (_) => const QrScanPage()));
       if (qr == null || !mounted) return;
-      setState(() => _step = '3/4 Xác minh khuôn mặt...');
-      final faceToken = await _faceToken();
-      setState(() => _step = '4/4 Gửi chấm công...');
+      setState(() => _step = '3/3 Gửi chấm công...');
       final r = await _api.checkIn(
           lat: fix.lat,
           lng: fix.lng,
           isMocked: fix.isMocked,
-          qrToken: qr,
-          faceToken: faceToken);
+          qrToken: qr);
       if (mounted) setState(() => _result = r);
     } catch (e) {
       showError(e);
@@ -221,10 +198,9 @@ class TrustResultCard extends StatelessWidget {
                 style: text.displayMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: r.trustScore >= 70 ? Colors.green : Colors.orange)),
-            row('Khuôn mặt', r.face, 35),
-            row('GPS (cách ${r.distance.toStringAsFixed(0)} m)', r.gps, 30),
-            row('Mã QR', r.qr, 25),
-            row('Không dùng GPS giả', r.notMocked, 10),
+            row('GPS (cách ${r.distance.toStringAsFixed(0)} m)', r.gps, 45),
+            row('Mã QR', r.qr, 35),
+            row('Không dùng GPS giả', r.notMocked, 20),
             const Divider(),
             Text('Trạng thái: ${statusText(r.status)}',
                 key: const Key('trust-status'), style: text.titleMedium),

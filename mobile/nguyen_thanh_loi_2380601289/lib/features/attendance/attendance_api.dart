@@ -20,7 +20,6 @@ class BranchPoint {
 
 class CheckInResult {
   final int trustScore;
-  final int face;
   final int gps;
   final int qr;
   final int notMocked;
@@ -28,7 +27,6 @@ class CheckInResult {
   final double distance;
   const CheckInResult({
     required this.trustScore,
-    required this.face,
     required this.gps,
     required this.qr,
     required this.notMocked,
@@ -40,7 +38,6 @@ class CheckInResult {
     final b = j['breakdown'] as Map<String, dynamic>;
     return CheckInResult(
       trustScore: j['trustScore'] as int,
-      face: b['face'] as int,
       gps: b['gps'] as int,
       qr: b['qr'] as int,
       notMocked: b['notMocked'] as int,
@@ -92,14 +89,12 @@ class AttendanceApi {
     required double lng,
     required bool isMocked,
     String? qrToken,
-    String? faceToken,
   }) async {
     final r = await api.dio.post('/api/attendance/check-in', data: {
       'lat': lat,
       'lng': lng,
       'isMocked': isMocked,
       'qrToken': qrToken,
-      'faceToken': faceToken,
     });
     return CheckInResult.fromJson(r.data as Map<String, dynamic>);
   }

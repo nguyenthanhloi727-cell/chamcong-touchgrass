@@ -70,7 +70,7 @@ Quy tắc chung:
 | 9 | API khuôn mặt | 5a | 20' | ✅ |
 | 10 | Nền Flutter: package, theme, API client | 7 | 25' | ✅ |
 | 11 | Màn xác thực Flutter | 1, 2 | 50' | ✅ |
-| 12 | Điều hướng theo role + 3 dashboard | 3 | 30' | ⬜ |
+| 12 | Điều hướng theo role + 3 dashboard | 3 | 30' | ✅ |
 | 13 | Màn CRUD (admin) | 4 | 45' | ⬜ |
 | 14 | Màn chấm công: GPS + QR + kết quả điểm | 5b, 5e, 6 | 40' | ⬜ |
 | 15 | Màn khuôn mặt | 5a | 45' | ⬜ |
@@ -342,12 +342,12 @@ Mỗi resource đủ: `GET list` (có tìm kiếm `?q=`), `GET {id}`, `POST`, `P
 
 ## Bước 12 — Điều hướng theo role + 3 dashboard (30') · [Đề mục 3]
 
-- [ ] 12.1 Đọc `role` từ JWT → `/admin`, `/manager`, `/employee`; chặn truy cập sai route
-- [ ] 12.2 **Admin:** menu Nhân viên, Phòng ban, Chức vụ, Ca làm, Chấm công, Báo cáo, Màn QR
-- [ ] 12.3 **Quản lý:** danh sách nhân viên phòng mình, ai đi muộn / chờ duyệt hôm nay, nút Duyệt, Màn QR
-- [ ] 12.4 **Nhân viên:** nút **Chấm công** to, ca hôm nay, lịch sử chấm công tháng này, điểm tin cậy lần gần nhất
-- [ ] 12.5 Header hiện tên + **Role · Chức vụ** (vd "Nhân viên · Bảo vệ")
-- [ ] 12.6 Nút Đăng xuất (xóa token)
+- [x] 12.1 Đọc `role` từ JWT → `/admin`, `/manager`, `/employee`; chặn truy cập sai route
+- [x] 12.2 **Admin:** menu Nhân viên, Phòng ban, Chức vụ, Ca làm, Chấm công, Báo cáo, Màn QR
+- [x] 12.3 **Quản lý:** danh sách nhân viên phòng mình, ai đi muộn / chờ duyệt hôm nay, nút Duyệt, Màn QR
+- [x] 12.4 **Nhân viên:** nút **Chấm công** to, ca hôm nay, lịch sử chấm công tháng này, điểm tin cậy lần gần nhất
+- [x] 12.5 Header hiện tên + **Role · Chức vụ** (vd "Nhân viên · Bảo vệ")
+- [x] 12.6 Nút Đăng xuất (xóa token)
 
 **Kiểm tra:** đăng nhập lần lượt `admin`, `manager1`, `employee1` → mỗi người vào đúng màn, không vào được màn người khác.
 **Commit:** `feat(mobile-rbac): dieu huong theo role, 3 dashboard`
@@ -514,3 +514,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 15:40 | 9 | FaceService + FaceController: enroll (lưu JSON), verify (cosine, ngưỡng `Face:Threshold` mặc định 0.8), login bằng mặt (sai/không có user đều 401 chung), faceToken JWT audience riêng 120s gắn userId; check-in bỏ cờ `faceMatched` của client, tự tính từ `faceToken`. 114 unit test qua. Test HTTP thật: enroll 204 (không token 401), cùng vector → matched score 1 + faceToken, vector ngẫu nhiên → false (0.13), login mặt đúng → JWT, sai → 401; check-in có faceToken → face 35đ, gửi cờ faceMatched=true giả → face 0đ. Đã xóa dữ liệu test |
 | 15:53 | 10 | Nền Flutter: 10 package (bỏ ⭐ tflite_flutter), core/{api,theme,router,config}, ApiClient (Bearer, refresh 401, SnackBar `{error}`), theme M3, quyền Android + cleartext chỉ ở debug, MainActivity → FlutterFragmentActivity (local_auth). analyze sạch, test + build APK OK. Máy thật 2107113SG hiện `Health: ok` (BASE_URL = IP LAN). Lỗi timeout ban đầu do Firewall Public chặn cổng 5000 → Lợi tạo luật `ChamCong API 5000`. Chưa thử emulator (máy không có AVD) |
 | 16:26 | 11 | Màn đăng ký (Email/SĐT, 2 nút xác nhận), OTP 1 ô + đếm ngược 60s, đăng nhập, Google, nút khuôn mặt (màn tạm tới Bước 15), SessionStore + router redirect. analyze sạch, 2 test widget. Test máy thật 2107113SG: đăng ký chỉ SĐT (SMS thật) OK, chỉ Email OK, Google OK (OAuth client Web + Android; `GOOGLE_WEB_CLIENT_ID` truyền bằng --dart-define). **Đổi theo yêu cầu: Admin đăng nhập bỏ qua OTP** (login trả token trực tiếp trong trường `auth`, thêm 1 unit test, 115 test qua) — ghi vào README Bước 19. User seed `manager1`/`employee1` vẫn cần điền Seed:*Email/*Phone mới qua OTP được |
+| 16:45 | 12 | Router redirect theo role (/admin /manager /employee, chặn route role khác), 3 dashboard + header Role · Chức vụ + đăng xuất. analyze sạch, 6 test qua, build APK OK. Test máy thật: admin, manager1, employee1 vào đúng màn. Các nút tới màn CRUD/QR/Chấm công hiện thông báo, làm ở Bước 13/14 |

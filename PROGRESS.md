@@ -77,7 +77,7 @@ Quy tắc chung:
 | 16 | Màn hồ sơ: bổ sung Email/SĐT | 1 | 20' | ✅ |
 | 17 | `tool/rename.dart` | Luật đặt tên | 25' | ✅ |
 | 18 | Test toàn luồng theo tiêu chí nghiệm thu | Tất cả | 30' | ✅ (phần tự động; test điện thoại làm sau Bước 19) |
-| 19 | README + đổi tên 4 thành viên + nộp | 7, luật | 30' | ⬜ |
+| 19 | README + đổi tên 4 thành viên + nộp | 7, luật | 30' | ✅ (README + push xong; 19.4–19.6 do từng thành viên tự làm) |
 
 > Tổng ~11 tiếng nếu làm tuần tự → **phải bỏ ⭐ và chạy song song** (vd: trong lúc Claude Code làm backend, mày test gateway / chuẩn bị máy). Mốc cứng: **20:30 bắt đầu Bước 18**, **21:30 bắt đầu Bước 19**.
 
@@ -492,15 +492,15 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 
 ## Bước 19 — README + đổi tên + nộp (30') · [Đề mục 7, luật]
 
-- [ ] 19.1 README:
+- [x] 19.1 README:
   - Tên nhóm, 4 thành viên + MSSV, stack, sơ đồ kiến trúc (Flutter → Backend → SMS Gateway → SIM)
   - Cài đặt: SQL Server (bật SQL Auth + TCP/IP), copy `appsettings.example.json` → `appsettings.Development.json` và điền, `dotnet ef database update`, `dotnet run --urls http://0.0.0.0:5000`, `flutter run --dart-define=BASE_URL=...`
   - Tài khoản demo: `admin` / `Admin@123` + `manager1` + `employee1`
   - Ghi chú: **SMS OTP gửi thật qua server điện thoại của nhóm, demo trên máy nhóm**; Google Sign-In cần SHA-1 đã đăng ký
   - Danh sách chức năng theo 7 mục đề + mục "Tính năng mới: Điểm tin cậy"
   - Hạn chế (nếu có ở Bước 18)
-- [ ] 19.2 `git grep` kiểm tra không có: App Password, mật khẩu gateway, IP gateway, JWT key
-- [ ] 19.3 Push bản gốc (tên Lợi) lên `main`
+- [x] 19.2 `git grep` kiểm tra không có: App Password, mật khẩu gateway, IP gateway, JWT key
+- [x] 19.3 Push bản gốc (tên Lợi) lên `main`
 - [ ] 19.4 Mỗi thành viên (trên máy/bản copy riêng, **không push lên `main`**):
   ```
   dart run tool/rename.dart --name "Hồ Ngọc Phú" --mssv 2380601699
@@ -541,3 +541,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 22:00 | 16 | Màn Hồ sơ (`/profile`, mở từ icon trên thanh tiêu đề): nhãn Đã xác nhận / Chưa xác nhận / Chưa có cho Email + SĐT, nút Thêm/Xác nhận → `POST /api/me/contact` → màn OTP dùng chung (route `/profile/otp`), nút đăng ký khuôn mặt. analyze sạch, 16 test qua. Test máy thật: thêm SĐT → SMS thật → xác nhận; đăng nhập lại OTP đi qua SMS |
 | 22:20 | 17 | `tool/rename.dart` (chỉ dart:io, có `--dry-run`): tự đọc tên cũ từ pubspec/.csproj/android:label, sửa nội dung + đổi tên thư mục/file (kotlin, mobile, backend, Tests), giữ BOM, bỏ qua CLAUDE/PROGRESS/PLAN. Test trên bản copy: chạy cho Phú → `flutter clean/pub get`, analyze sạch, 16 test Flutter, `dotnet build` 0 lỗi, 115 test backend, build APK debug OK, quét tên cũ = 0; chạy ngược về Lợi → 158 file giống hệt bản gốc. Lưu ý: nếu Gradle daemon còn giữ thư mục `mobile/` thì đổi tên bị `Access denied` → `gradlew --stop` rồi chạy lại |
 | 23:00 | 18 | Phần tự động: 115 test backend + 16 test Flutter qua, analyze sạch, repo không lộ bí mật. API thật: đăng ký trống 2 kênh = 400, không token = 401, admin tự hạ quyền = 403, QR mới OK. Các mục cần điện thoại (18.1, 18.2, 18.4–18.8, 18.10–18.14) **chưa test** — Lợi chọn test 1 lượt sau Bước 19 |
+| 23:30 | 19 | README đầy đủ (kiến trúc, cài đặt, tài khoản demo, chức năng 7 mục, hạn chế). Quét repo: mọi giá trị trong appsettings.Development.json (SQL, JWT, Pepper, App Password, gateway, Qr secret, mật khẩu seed manager/employee) không xuất hiện trong file đã commit. 19.4–19.6 (rename từng người, SHA-1, nộp) để từng thành viên làm |

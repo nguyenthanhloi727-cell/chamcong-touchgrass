@@ -89,6 +89,33 @@ public class FaceTests
     }
 
     [Fact]
+    public async Task Remove_ClearsEnrollment_VerifyAndLoginFail_AndIsIdempotent()
+    {
+        await _face.EnrollAsync(_u.Id, Vec(1), default);
+        Assert.True((await _db.Users.FindAsync(_u.Id))!.FaceEmbedding is not null);
+
+        await _face.RemoveAsync(_u.Id, default);
+
+        Assert.Null((await _db.Users.FindAsync(_u.Id))!.FaceEmbedding);
+        Assert.Equal(409, await StatusOf(() => _face.VerifyAsync(_u.Id, Vec(1), default)));
+        Assert.Equal(401, await StatusOf(() => _face.LoginAsync(new FaceLoginRequest { Username = "u1", Embedding = Vec(1) }, default)));
+        Assert.Equal(200, await StatusOf(() => _face.RemoveAsync(_u.Id, default)));   // xóa lần 2: không lỗi
+        Assert.Equal(401, await StatusOf(() => _face.RemoveAsync(99999, default)));   // user không tồn tại
+    }
+
+    [Fact]
+    public async Task Remove_OnlyAffectsThatUser()
+    {
+        await _face.EnrollAsync(_u.Id, Vec(1), default);
+        await _face.EnrollAsync(_locked.Id, Vec(2), default);
+
+        await _face.RemoveAsync(_u.Id, default);
+
+        Assert.Null((await _db.Users.FindAsync(_u.Id))!.FaceEmbedding);
+        Assert.NotNull((await _db.Users.FindAsync(_locked.Id))!.FaceEmbedding);
+    }
+
+    [Fact]
     public async Task Login_Match_ReturnsJwt_Otherwise401()
     {
         await _face.EnrollAsync(_u.Id, Vec(1), default);

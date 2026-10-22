@@ -106,13 +106,23 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
                   ],
                 ),
               ),
+              FadeSlideIn(
+                index: 2,
+                child: ListenableBuilder(
+                  listenable: widget.session,
+                  builder: (context, _) => _FaceCard(
+                    registered: widget.session.user?.hasFace ?? false,
+                    onTap: () => context.push('/face-enroll'),
+                  ),
+                ),
+              ),
               const SectionTitle('Lịch sử chấm công tháng này'),
               if (history.isEmpty)
                 const EmptyState(
                     icon: Icons.event_busy_outlined, text: 'Chưa có dữ liệu'),
               for (var i = 0; i < history.length; i++)
                 FadeSlideIn(
-                  index: i + 2,
+                  index: i + 3,
                   child: _HistoryTile(item: history[i], day: _day(history[i].checkInAt)),
                 ),
             ],
@@ -188,6 +198,68 @@ class _CheckinButton extends StatelessWidget {
                     const Icon(Icons.arrow_forward_rounded, color: Colors.white),
                   ],
                 ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Ô quản lý khuôn mặt: cho biết đã đăng ký chưa và dẫn tới màn quản lý.
+class _FaceCard extends StatelessWidget {
+  final bool registered;
+  final VoidCallback onTap;
+  const _FaceCard({required this.registered, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final color =
+        registered ? const Color(0xFF16A34A) : const Color(0xFFEA580C);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: PressScale(
+        child: Card(
+          margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  IconBadge(
+                      icon: registered
+                          ? Icons.face_rounded
+                          : Icons.face_retouching_natural,
+                      color: color),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Khuôn mặt',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                        Text(
+                          registered
+                              ? 'Đã đăng ký · bấm để quản lý'
+                              : 'Chưa đăng ký · bấm để đăng ký đăng nhập nhanh',
+                          style: TextStyle(
+                              color:
+                                  Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                  StatusPill(
+                      label: registered ? 'Đã đăng ký' : 'Chưa có', color: color),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.chevron_right_rounded),
+                ],
               ),
             ),
           ),

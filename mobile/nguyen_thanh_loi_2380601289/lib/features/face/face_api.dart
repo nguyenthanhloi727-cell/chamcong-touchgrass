@@ -14,6 +14,9 @@ class FaceApi {
   Future<void> enroll(List<double> embedding) =>
       api.dio.post('/api/face/enroll', data: {'embedding': embedding});
 
+  /// Xóa khuôn mặt đã đăng ký của chính mình.
+  Future<void> remove() => api.dio.delete('/api/face');
+
   Future<FaceVerifyResult> verify(List<double> embedding) async {
     final r =
         await api.dio.post('/api/face/verify', data: {'embedding': embedding});

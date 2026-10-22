@@ -69,9 +69,12 @@ ThemeData buildAppTheme([Brightness brightness = Brightness.light]) {
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
     ),
+    // OutlinedButton KHÔNG dùng Size.fromHeight (rộng tối thiểu vô hạn): nút đặt trong
+    // ListTile.trailing hay Row sẽ nuốt cả hàng và vỡ layout. Cần nút full-width thì tự đặt
+    // minimumSize hoặc đặt trong Column/Expanded.
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        minimumSize: const Size.fromHeight(52),
+        minimumSize: const Size(64, 52),
         shape: RoundedRectangleBorder(borderRadius: radius),
         side: BorderSide(color: scheme.outline.withValues(alpha: 0.5)),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),

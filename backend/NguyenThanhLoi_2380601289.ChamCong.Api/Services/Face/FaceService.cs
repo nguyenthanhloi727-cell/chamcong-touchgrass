@@ -24,6 +24,16 @@ public class FaceService(AppDbContext db, JwtService jwt, AuthService auth, IOpt
         await db.SaveChangesAsync(ct);
     }
 
+    /// <summary>Xóa khuôn mặt đã đăng ký của chính người dùng; chưa đăng ký thì không làm gì (idempotent).</summary>
+    public async Task RemoveAsync(int userId, CancellationToken ct)
+    {
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct)
+            ?? throw AppException.Unauthorized("Tai khoan khong ton tai");
+        if (user.FaceEmbedding is null) return;
+        user.FaceEmbedding = null;
+        await db.SaveChangesAsync(ct);
+    }
+
     public async Task<FaceVerifyResponse> VerifyAsync(int userId, float[]? embedding, CancellationToken ct)
     {
         Validate(embedding);

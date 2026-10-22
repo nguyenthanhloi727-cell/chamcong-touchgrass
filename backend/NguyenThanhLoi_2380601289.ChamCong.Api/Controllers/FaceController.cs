@@ -15,6 +15,13 @@ public class FaceController(FaceService face) : AppControllerBase
         return NoContent();
     }
 
+    [Authorize, HttpDelete]
+    public async Task<IActionResult> Remove(CancellationToken ct)
+    {
+        await face.RemoveAsync(UserId, ct);
+        return NoContent();
+    }
+
     [Authorize, HttpPost("verify")]
     public Task<FaceVerifyResponse> Verify(FaceVerifyRequest req, CancellationToken ct) =>
         face.VerifyAsync(UserId, req.Embedding, ct);

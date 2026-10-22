@@ -23,7 +23,7 @@ public class ReviewRequest
 }
 
 public record MonthlyReportRow(int UserId, string Username, string FullName, string? PositionName,
-    int WorkDays, int LateCount, int PendingCount);
+    int WorkDays, int LateCount, int PendingCount, int RejectedCount);
 
 public class ShareLocationRequest
 {

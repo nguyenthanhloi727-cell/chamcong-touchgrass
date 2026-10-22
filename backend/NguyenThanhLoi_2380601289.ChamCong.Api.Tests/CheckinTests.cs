@@ -179,6 +179,39 @@ public class CheckinTests
         Assert.Equal(30, r2.Breakdown.Gps);
     }
 
+    [Fact]
+    public async Task CheckIn_ConcurrentDoubleTap_OnlyOneRecord()
+    {
+        var results = await Task.WhenAll(Enumerable.Range(0, 5).Select(_ => StatusOf(() => _svc.CheckInAsync(_employee.Id, Req(), default))));
+        Assert.Equal(1, results.Count(s => s == 200));
+        Assert.Equal(1, _db.Attendances.Count(a => a.UserId == _employee.Id));
+    }
+
+    [Fact]
+    public async Task CheckIn_AfterRejected_CanCheckInAgain()
+    {
+        var id = await Pending(_employee);
+        await _svc.ReviewAsync(_manager.Id, id, false, default);
+        var r = await _svc.CheckInAsync(_employee.Id, Req(), default);
+        Assert.Equal("OnTime", r.Status);
+    }
+
+    [Fact]
+    public async Task CheckIn_OverlappingShifts_PicksEarliestStart()
+    {
+        _db.Shifts.Add(new Shift { Name = "Ca sang som", StartTime = new TimeOnly(7, 0), EndTime = new TimeOnly(12, 0) });
+        _db.SaveChanges();
+        var id = (await _svc.CheckInAsync(_employee.Id, Req(), default)).AttendanceId;
+        Assert.Equal("Ca sang som", _db.Attendances.Include(a => a.Shift).Single(a => a.Id == id).Shift!.Name);
+    }
+
+    [Fact]
+    public void VietnamTime_IsUtcPlus7()
+    {
+        var vn = new VietnamTimeProvider();
+        Assert.Equal(TimeSpan.FromHours(7), vn.LocalTimeZone.GetUtcOffset(DateTime.UtcNow));
+    }
+
     // ---------- Check-out ----------
 
     [Fact]
@@ -243,7 +276,12 @@ public class CheckinTests
         var rows = await _svc.MonthlyReportAsync(_manager.Id, "2026-10", null, default);
         Assert.DoesNotContain(rows, r => r.UserId == _otherEmployee.Id); // khác phòng
         var row = rows.Single(r => r.UserId == _employee.Id);
-        Assert.Equal((2, 1, 1), (row.WorkDays, row.LateCount, row.PendingCount));
+        Assert.Equal((2, 1, 1, 0), (row.WorkDays, row.LateCount, row.PendingCount, row.RejectedCount));
+
+        var pendingId = _db.Attendances.Single(a => a.Status == AttendanceStatus.PendingReview).Id;
+        await _svc.ReviewAsync(_manager.Id, pendingId, false, default);
+        row = (await _svc.MonthlyReportAsync(_manager.Id, "2026-10", null, default)).Single(r => r.UserId == _employee.Id);
+        Assert.Equal((2, 0, 1), (row.WorkDays, row.PendingCount, row.RejectedCount));
 
         Assert.Equal(0, (await _svc.MonthlyReportAsync(_admin.Id, "2026-09", null, default)).Sum(r => r.WorkDays));
         Assert.Single(await _svc.MonthlyReportAsync(_admin.Id, "2026-10", _db.Departments.First(d => d.Name == "B").Id, default));

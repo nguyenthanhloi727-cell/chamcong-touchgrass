@@ -14,10 +14,9 @@ public class QrService(IOptions<QrOptions> opt, TimeProvider clock)
 
     public (string Token, int ExpiresIn) Current()
     {
-        var w = CurrentWindow;
-        var nextStart = (w + 1) * O.WindowSeconds;
-        var expiresIn = (int)(nextStart - clock.GetUtcNow().ToUnixTimeSeconds());
-        return (Sign(w), expiresIn);
+        var now = clock.GetUtcNow().ToUnixTimeSeconds();
+        var w = now / O.WindowSeconds;
+        return (Sign(w), (int)((w + 1) * O.WindowSeconds - now));
     }
 
     /// <summary>Hợp lệ nếu chữ ký đúng và window = hiện tại hoặc liền trước (chịu lệch 1 cửa sổ).</summary>

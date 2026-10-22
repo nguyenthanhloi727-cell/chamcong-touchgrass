@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,18 @@ namespace NguyenThanhLoi_2380601289.ChamCong.Api.Services.Checkin;
 /// <summary>Check-in/out (QR + GPS + điểm tin cậy), duyệt, báo cáo tháng, chia sẻ vị trí.</summary>
 public class CheckinService(AppDbContext db, QrService qr, RbacService rbac, IOptions<GeofenceOptions> geo, TimeProvider clock)
 {
+    // Chặn bấm đúp / gửi 2 request cùng lúc vượt qua kiểm tra trùng ca (1 tiến trình backend)
+    private static readonly ConcurrentDictionary<int, SemaphoreSlim> UserLocks = new();
+
     public async Task<CheckInResult> CheckInAsync(int userId, CheckInRequest req, CancellationToken ct)
+    {
+        var gate = UserLocks.GetOrAdd(userId, _ => new SemaphoreSlim(1, 1));
+        await gate.WaitAsync(ct);
+        try { return await DoCheckInAsync(userId, req, ct); }
+        finally { gate.Release(); }
+    }
+
+    private async Task<CheckInResult> DoCheckInAsync(int userId, CheckInRequest req, CancellationToken ct)
     {
         var lat = req.Lat ?? throw AppException.BadRequest("Thieu lat");
         var lng = req.Lng ?? throw AppException.BadRequest("Thieu lng");
@@ -109,7 +121,8 @@ public class CheckinService(AppDbContext db, QrService qr, RbacService rbac, IOp
             return new MonthlyReportRow(u.Id, u.Username, u.FullName, u.Position?.Name,
                 worked.Select(a => a.CheckInAt.Date).Distinct().Count(),
                 mine.Count(a => a.Status == AttendanceStatus.Late),
-                mine.Count(a => a.Status == AttendanceStatus.PendingReview));
+                mine.Count(a => a.Status == AttendanceStatus.PendingReview),
+                mine.Count(a => a.Status == AttendanceStatus.Rejected));
         }).ToList();
     }
 
@@ -137,7 +150,7 @@ public class CheckinService(AppDbContext db, QrService qr, RbacService rbac, IOp
     /// <summary>Ca đang diễn ra (cho vào sớm 2 giờ); không có thì ca bắt đầu gần giờ hiện tại nhất.</summary>
     private async Task<Shift?> PickShiftAsync(TimeSpan now, CancellationToken ct)
     {
-        var shifts = await db.Shifts.AsNoTracking().ToListAsync(ct);
+        var shifts = await db.Shifts.AsNoTracking().OrderBy(s => s.StartTime).ThenBy(s => s.Id).ToListAsync(ct);
         return shifts.FirstOrDefault(s => now >= s.StartTime.ToTimeSpan() - TimeSpan.FromHours(2) && now <= s.EndTime.ToTimeSpan())
             ?? shifts.OrderBy(s => Math.Abs((s.StartTime.ToTimeSpan() - now).TotalMinutes)).FirstOrDefault();
     }

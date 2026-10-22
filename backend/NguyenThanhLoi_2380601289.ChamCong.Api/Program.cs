@@ -49,7 +49,7 @@ builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.EmployeeAdminService>();
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.AttendanceCrudService>();
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.LeaveRequestService>();
-builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<TimeProvider, NguyenThanhLoi_2380601289.ChamCong.Api.Services.Checkin.VietnamTimeProvider>();
 builder.Services.AddSingleton<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Checkin.QrService>();
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Checkin.CheckinService>();
 
@@ -57,6 +57,9 @@ builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Check
 var jwt = cfg.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
 if (jwt.Key.Length < 32)
     throw new InvalidOperationException("Jwt:Key phai co it nhat 32 ky tu (dien trong appsettings.Development.json)");
+var qrOpt = cfg.GetSection("Qr").Get<QrOptions>() ?? new QrOptions();
+if (qrOpt.Secret.Length < 16 || qrOpt.WindowSeconds <= 0)
+    throw new InvalidOperationException("Qr:Secret phai co it nhat 16 ky tu va Qr:WindowSeconds > 0 (dien trong appsettings.Development.json)");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
@@ -121,6 +124,9 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await DbSeeder.SeedAsync(db, app.Configuration, app.Logger);
+    var fence = app.Configuration.GetSection("Geofence").Get<GeofenceOptions>() ?? new GeofenceOptions();
+    if (fence.Lat == 0 && fence.Lng == 0 && !await db.Locations.AnyAsync())
+        app.Logger.LogWarning("Chua cau hinh Geofence:Lat/Lng va chua co Locations -> moi check-in se mat diem GPS");
 }
 
 app.UseMiddleware<ErrorHandlingMiddleware>();

@@ -16,6 +16,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Options
 var cfg = builder.Configuration;
+
+// Máy mới clone chưa có appsettings.Development.json: tự sinh khóa tạm cho môi trường Development
+// (đổi mỗi lần chạy lại → phải đăng nhập lại, mã QR cũ vô hiệu). Production vẫn bắt buộc phải cấu hình.
+if (builder.Environment.IsDevelopment())
+{
+    foreach (var (key, minLength) in new[] { ("Jwt:Key", 32), ("Qr:Secret", 16), ("Otp:HashPepper", 16) })
+    {
+        if ((cfg[key] ?? "").Length >= minLength) continue;
+        cfg[key] = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(48));
+        Console.WriteLine($"[dev] Thieu {key} -> dung khoa tam (dien trong appsettings.Development.json de co dinh).");
+    }
+}
 builder.Services.Configure<JwtOptions>(cfg.GetSection("Jwt"));
 builder.Services.Configure<OtpOptions>(cfg.GetSection("Otp"));
 builder.Services.Configure<EmailOptions>(cfg.GetSection("Email"));

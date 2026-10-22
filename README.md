@@ -48,6 +48,8 @@ copy appsettings.example.json appsettings.Development.json
 
 Mở `appsettings.Development.json` và điền (file này **không được commit**):
 
+> Chưa có file này thì khi chạy ở môi trường Development, app tự sinh `Jwt:Key`, `Qr:Secret`, `Otp:HashPepper` tạm (in cảnh báo `[dev]`): chạy được ngay nhưng mỗi lần chạy lại phải đăng nhập lại. Muốn cố định thì điền các khóa này vào file.
+
 | Key | Ý nghĩa |
 |---|---|
 | `ConnectionStrings:Default` | Chuỗi kết nối SQL Server |

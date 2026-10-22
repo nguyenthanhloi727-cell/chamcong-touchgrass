@@ -99,7 +99,7 @@ Mở Device Manager → sửa AVD → Show Advanced Settings → Camera: **Front
 **Làm:** đăng nhập `admin` (hoặc `manager1`) → ô **Màn QR** → **Màn QR chấm công**.
 
 **Thấy được:**
-- Mã QR đổi liên tục, dòng **Đổi mã sau N giây** đếm ngược 30 giây.
+- Mã QR đổi liên tục, dòng **Đổi mã sau N giây** đếm ngược 60 giây.
 - Bấm **Đặt vị trí hiện tại làm điểm chấm công** → bản đồ chọn điểm (đúng chỗ bạn ngồi, xem 0.5) → xác nhận → thông báo `Đã thêm "Điểm chấm công N" ... bán kính 200 m`.
 
 **Giữ màn hình này mở**, đặt emulator hoặc phóng to cửa sổ emulator cho dễ quét. Đây là "màn hình tại điểm chấm công" mà nhân viên sẽ quét.

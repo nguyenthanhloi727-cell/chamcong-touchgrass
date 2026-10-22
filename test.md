@@ -88,7 +88,7 @@ Trước phần này đảm bảo `employee1` đang giữ `SĐT_THẬT` (mục 2
 ### Phần 3 — Hồ sơ và khuôn mặt (emulator, `employee1`) · ~2:00
 1. Bấm biểu tượng **Hồ sơ**. Chỉ nhãn **Đã xác nhận / Chưa xác nhận / Chưa có** của Email và SĐT.
 2. Ở kênh còn thiếu bấm thêm/xác nhận → **Gửi mã OTP** → nhập mã.
-3. Quay lại dashboard: ô **Khuôn mặt** hiện *Chưa đăng ký · bấm để đăng ký đăng nhập nhanh* → bấm vào để mở màn **Khuôn mặt của tôi** (hoặc vào từ **Hồ sơ**) → **Đăng ký khuôn mặt** → **chớp mắt** khi được yêu cầu → **Đã đăng ký khuôn mặt**; ô trên dashboard đổi thành *Đã đăng ký · bấm để quản lý*.
+3. Ngay đầu dashboard Nhân viên có **banner cam "Đăng ký khuôn mặt"** (chỉ hiện khi chưa đăng ký) → bấm **Đăng ký ngay** để mở màn **Khuôn mặt của tôi** (hoặc vào từ **Hồ sơ**) → **Đăng ký khuôn mặt** → **chớp mắt** khi được yêu cầu → **Đã đăng ký khuôn mặt**; banner biến mất, thay bằng ô nhỏ *Khuôn mặt · Đã đăng ký · bấm để quản lý*.
 4. Cũng ở màn **Khuôn mặt của tôi** (nhân viên tự quản lý): **Đăng ký lại** (ghi đè), **Thử nhận diện** (chớp mắt, báo *Khớp* / *Không khớp* kèm độ giống %), **Xóa khuôn mặt** (có hộp thoại xác nhận; xóa xong về *Chưa đăng ký*).
 5. Đăng xuất → **Đăng nhập bằng khuôn mặt** → nhập username → chớp mắt → vào app.
 

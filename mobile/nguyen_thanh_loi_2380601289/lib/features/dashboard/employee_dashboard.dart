@@ -69,7 +69,18 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             children: [
+              ListenableBuilder(
+                listenable: widget.session,
+                builder: (context, _) =>
+                    (widget.session.user?.hasFace ?? false)
+                        ? const SizedBox.shrink()
+                        : FadeSlideIn(
+                            child: _FaceBanner(
+                                onTap: () => context.push('/face-enroll')),
+                          ),
+              ),
               FadeSlideIn(
+                index: 1,
                 child: _CheckinButton(
                   onPressed: () async {
                     await context.push('/employee/checkin');
@@ -110,10 +121,13 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
                 index: 2,
                 child: ListenableBuilder(
                   listenable: widget.session,
-                  builder: (context, _) => _FaceCard(
-                    registered: widget.session.user?.hasFace ?? false,
-                    onTap: () => context.push('/face-enroll'),
-                  ),
+                  builder: (context, _) =>
+                      (widget.session.user?.hasFace ?? false)
+                          ? _FaceCard(
+                              registered: true,
+                              onTap: () => context.push('/face-enroll'),
+                            )
+                          : const SizedBox.shrink(),
                 ),
               ),
               const SectionTitle('Lịch sử chấm công tháng này'),
@@ -149,7 +163,6 @@ class _CheckinButton extends StatelessWidget {
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(28),
           child: Ink(
-            height: 112,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
               gradient: LinearGradient(
@@ -164,8 +177,12 @@ class _CheckinButton extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(28),
               onTap: onPressed,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+              // Cao tối thiểu 112, tự giãn khi chữ xuống dòng (font hệ thống lớn / màn nhỏ).
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 112),
+                alignment: Alignment.center,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Row(
                   children: [
                     Container(
@@ -200,6 +217,71 @@ class _CheckinButton extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Banner đầu dashboard khi nhân viên chưa đăng ký khuôn mặt: kêu gọi + nút Đăng ký ngay.
+class _FaceBanner extends StatelessWidget {
+  final VoidCallback onTap;
+  const _FaceBanner({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    const color = Color(0xFFEA580C);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Card(
+        key: const Key('face-banner'),
+        margin: EdgeInsets.zero,
+        color: color.withValues(alpha: 0.08),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: color.withValues(alpha: 0.35)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const IconBadge(
+                      icon: Icons.face_retouching_natural, color: color, size: 48),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Đăng ký khuôn mặt',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w800)),
+                        Text('Đăng nhập nhanh, không cần mã OTP',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              FilledButton.icon(
+                key: const Key('face-banner-button'),
+                style: FilledButton.styleFrom(
+                    backgroundColor: color,
+                    minimumSize: const Size.fromHeight(46)),
+                onPressed: onTap,
+                icon: const Icon(Icons.face),
+                label: const Text('Đăng ký ngay'),
+              ),
+            ],
           ),
         ),
       ),

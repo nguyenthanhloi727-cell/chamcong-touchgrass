@@ -7,7 +7,7 @@
 
 ## ❓ GitHub — điền trước khi push lần đầu
 
-- [ ] **Repo push lên account nào?** Chủ repo: `__________` · Link: `https://github.com/__________/__________`
+- [x] **Repo push lên account nào?** Chủ repo: `nguyenthanhloi727-cell` · Link: `https://github.com/nguyenthanhloi727-cell/chamcong-touchgrass`
 - [ ] Repo **public** (bắt buộc: thầy phải tải về và xem được), nhánh chính `main`, 3 người còn lại được add làm **Collaborator** (Settings → Collaborators)
 - [ ] **Thầy clone về phải chạy được dù không có bí mật của nhóm:**
   - **Không có OTP giả.** OTP SMS luôn gửi qua server điện thoại (SMS Gateway) của Lợi. Máy nào chạy backend cũng phải cùng mạng với điện thoại đó + điền cấu hình `SmsGateway` → demo trên máy nhóm
@@ -17,8 +17,8 @@
 
 | Thành viên | Account GitHub | Đã nhận lời mời collaborator |
 |---|---|---|
-| Nguyễn Thành Lợi | `__________` | ⬜ |
-| Hồ Ngọc Phú | `__________` | ⬜ |
+| Nguyễn Thành Lợi | `nguyenthanhloi727-cell` (chủ repo) | — |
+| Hồ Ngọc Phú | `flashbeng77` | ⬜ |
 | Phạm Đinh Gia Bảo | `__________` | ⬜ |
 | Phương Bảo Khôi | `__________` | ⬜ |
 

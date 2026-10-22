@@ -59,7 +59,7 @@ Quy tắc chung:
 
 | Bước | Nội dung | Đề mục | Thời lượng | Trạng thái |
 |---|---|---|---|---|
-| 1 | Khởi tạo repo + 2 project | 7 | 20' | 🟡 chờ remote GitHub |
+| 1 | Khởi tạo repo + 2 project | 7 | 20' | ✅ |
 | 2 | CSDL: entity, DbContext, migration, seed | 3, 4 | 40' | ⬜ |
 | 3 | Nền backend: cấu hình, JWT, Swagger, lỗi | 2, 3 | 25' | ⬜ |
 | 4 | OTP + gửi Email + gửi SMS qua gateway | 1, 2 | 45' | ⬜ |
@@ -98,7 +98,7 @@ Quy tắc chung:
 
 ## Bước 1 — Khởi tạo repo + 2 project (20') · [Đề mục 7]
 
-- [ ] 1.1 Tạo repo GitHub **public** (tên repo: chưa chốt — điền vào mục GitHub của PLAN.md), clone về
+- [x] 1.1 Tạo repo GitHub **public**: https://github.com/nguyenthanhloi727-cell/chamcong-touchgrass
 - [x] 1.2 `.gitignore` gộp cho .NET + Flutter, **bắt buộc có**:
   ```
   appsettings.Development.json
@@ -494,3 +494,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 |---|---|---|
 | 14:30 | 0 | dotnet 10, git, dotnet-ef, Flutter OK. Thiếu `gh`; SQL Auth/TCP 1433 + gateway `/health` chưa kiểm tra |
 | 14:45 | 1 | Backend + Flutter tạo xong; `dotnet build` 0 cảnh báo; `flutter build apk --debug` OK khi đặt `TEMP=C:\tmp` (TEMP có dấu cách làm Gradle lỗi "Unable to establish loopback connection"). Commit local, chưa push vì chưa có repo |
+| 15:10 | 1 | Tạo repo public `nguyenthanhloi727-cell/chamcong-touchgrass`, push `main` OK. Máy là của Phú → remote URL có sẵn username Lợi, không đụng credential của Phú |

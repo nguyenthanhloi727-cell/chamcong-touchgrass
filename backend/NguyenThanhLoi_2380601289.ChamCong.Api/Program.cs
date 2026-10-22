@@ -45,6 +45,10 @@ builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddSingleton<IGoogleTokenVerifier, GoogleTokenVerifier>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Rbac.RbacService>();
+builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.MasterDataService>();
+builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.EmployeeAdminService>();
+builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.AttendanceCrudService>();
+builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.LeaveRequestService>();
 
 // JWT
 var jwt = cfg.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();

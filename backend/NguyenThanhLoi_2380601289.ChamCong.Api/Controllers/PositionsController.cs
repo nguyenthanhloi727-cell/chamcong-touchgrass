@@ -3,18 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Dtos;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Entities;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Services;
-using NguyenThanhLoi_2380601289.ChamCong.Api.Services.Rbac;
+using NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud;
 
 namespace NguyenThanhLoi_2380601289.ChamCong.Api.Controllers;
 
-[ApiController]
 [Authorize]
 [Route("api/positions")]
-public class PositionsController(RbacService rbac) : ControllerBase
+public class PositionsController(MasterDataService svc) : AppControllerBase
 {
-    /// <summary>Cho dropdown ô 2: ?roleGroup=Manager|Employee.</summary>
+    /// <summary>Cho dropdown ô 2: ?roleGroup=Manager|Employee; ?q= tìm theo tên.</summary>
     [HttpGet]
-    public Task<List<PositionDto>> List([FromQuery] string? roleGroup, CancellationToken ct)
+    public Task<List<PositionDto>> List([FromQuery] string? roleGroup, [FromQuery] string? q, CancellationToken ct)
     {
         Role? group = null;
         if (!string.IsNullOrWhiteSpace(roleGroup))
@@ -23,6 +22,26 @@ public class PositionsController(RbacService rbac) : ControllerBase
                 throw AppException.BadRequest("roleGroup phai la Manager hoac Employee");
             group = r;
         }
-        return rbac.ListPositionsAsync(group, ct);
+        return svc.ListPositionsAsync(q, group, ct);
+    }
+
+    [HttpGet("{id:int}")]
+    public Task<PositionDto> Get(int id, CancellationToken ct) => svc.GetPositionAsync(id, ct);
+
+    [HttpPost, Authorize(Roles = "Admin")]
+    public async Task<ActionResult<PositionDto>> Create(PositionRequest req, CancellationToken ct)
+    {
+        var p = await svc.CreatePositionAsync(req, ct);
+        return CreatedAtAction(nameof(Get), new { id = p.Id }, p);
+    }
+
+    [HttpPut("{id:int}"), Authorize(Roles = "Admin")]
+    public Task<PositionDto> Update(int id, PositionRequest req, CancellationToken ct) => svc.UpdatePositionAsync(id, req, ct);
+
+    [HttpDelete("{id:int}"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        await svc.DeletePositionAsync(id, ct);
+        return NoContent();
     }
 }

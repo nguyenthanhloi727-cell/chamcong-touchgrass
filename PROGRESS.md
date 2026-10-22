@@ -65,7 +65,7 @@ Quy tắc chung:
 | 4 | OTP + gửi Email + gửi SMS qua gateway | 1, 2 | 45' | ✅ |
 | 5 | API xác thực: đăng ký, đăng nhập, Google, bổ sung liên hệ | 1, 2 | 45' | ✅ |
 | 6 | Phân quyền 2 ô + bảo vệ admin | 3 | 20' | ✅ |
-| 7 | API CRUD | 4 | 40' | ⬜ |
+| 7 | API CRUD | 4 | 40' | ✅ |
 | 8 | API chấm công: QR, GPS, điểm tin cậy, báo cáo | 5b, 5e, 6 | 40' | ⬜ |
 | 9 | API khuôn mặt | 5a | 20' | ⬜ |
 | 10 | Nền Flutter: package, theme, API client | 7 | 25' | ⬜ |
@@ -263,14 +263,14 @@ Controller: `AuthController`, `MeController`.
 
 Mỗi resource đủ: `GET list` (có tìm kiếm `?q=`), `GET {id}`, `POST`, `PUT {id}`, `DELETE {id}`; DTO riêng, validate.
 
-- [ ] 7.1 `/api/departments`
-- [ ] 7.2 `/api/positions`
-- [ ] 7.3 `/api/shifts` (kiểm tra `StartTime < EndTime`)
-- [ ] 7.4 `/api/employees` (admin tạo nhân viên: username, fullName, email?, phone?, role, positionId, departmentId, mật khẩu tạm) — không trả `PasswordHash`
-- [ ] 7.5 `/api/attendances` (admin/manager xem + sửa trạng thái; nhân viên chỉ xem của mình)
-- [ ] 7.6 ⭐ `/api/locations`
-- [ ] 7.7 ⭐ `/api/leave-requests` + `POST {id}/approve`, `POST {id}/reject` (Manager/Admin)
-- [ ] 7.8 Xóa đang bị tham chiếu (vd phòng ban còn nhân viên) → 409 kèm thông báo
+- [x] 7.1 `/api/departments`
+- [x] 7.2 `/api/positions`
+- [x] 7.3 `/api/shifts` (kiểm tra `StartTime < EndTime`)
+- [x] 7.4 `/api/employees` (admin tạo nhân viên: username, fullName, email?, phone?, role, positionId, departmentId, mật khẩu tạm) — không trả `PasswordHash`
+- [x] 7.5 `/api/attendances` (admin/manager xem + sửa trạng thái; nhân viên chỉ xem của mình)
+- [x] 7.6 ⭐ `/api/locations`
+- [x] 7.7 ⭐ `/api/leave-requests` + `POST {id}/approve`, `POST {id}/reject` (Manager/Admin)
+- [x] 7.8 Xóa đang bị tham chiếu (vd phòng ban còn nhân viên) → 409 kèm thông báo
 
 **Kiểm tra:** Swagger chạy đủ 5 thao tác cho từng resource bằng token admin.
 **Commit:** `feat(crud): phong ban, chuc vu, ca lam, nhan vien, cham cong`
@@ -501,3 +501,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 15:10 | 5 | AuthService + AuthController/MeController, 56 unit test qua. Test thật: đăng ký chỉ Email → mail OTP → verify → emailVerified; login user chỉ email → OTP mail; SMS OTP thật tới máy Lợi → verify ra JWT admin; sai 5 lần → hủy (429), resend <60s → 429, dùng lại mã → 400, refresh OK. Sửa claim role JWT (trước ghi URI dài, Authorize Roles sẽ không khớp). Refresh token = JWT audience riêng (không thêm bảng). Đăng ký chỉ SĐT chỉ test bằng unit test (SĐT Lợi đã thuộc admin). Google để Bước 11 |
 | 17:10 | 6 | RbacService + EmployeesController (GET list/get theo phạm vi, PUT {id}/role) + PositionsController (?roleGroup=). 66 unit test qua. Test HTTP thật bằng JWT ký tay: employee1 → /api/employees & PUT role = 403; manager1 PUT role = 403, xem list chỉ cùng phòng; admin tự hạ = 403, Kế toán cho Manager = 400, Admin kèm chức vụ = 400, đổi hợp lệ = 200. Sửa: thêm JsonStringEnumConverter (enum Role nhận chuỗi). Admin cuối cùng → 409 chỉ test bằng unit test (chỉ có 1 admin thật) |
 | 17:40 | 6 | Vá thêm theo rà soát: JwtBearer đối chiếu role/trạng thái với DB mỗi request (token mang role cũ hoặc user bị khóa → 401, refresh ra token đúng role); báo lỗi JSON/enum sai rõ tên trường. Test HTTP: token employee1 giả role Admin → 401, token đúng → 200. Còn lại: Manager mới chưa có phòng ban chỉ thấy chính mình (gán phòng ban ở Bước 7) |
+| 15:20 | 7 | CRUD đủ GET list (?q=) / GET {id} / POST / PUT / DELETE cho departments, positions, shifts, employees, attendances, locations, leave-requests (+approve/reject); đọc mở cho mọi người đăng nhập, ghi chỉ Admin (attendances: Admin/Manager sửa, leave: chủ đơn sửa/rút khi Pending). Xóa còn bị tham chiếu → 409 kèm thông báo. Admin tạo nhân viên coi liên hệ đã xác nhận để đăng nhập được; PUT employees gán phòng ban cho Manager. 85 unit test qua. Test HTTP thật bằng JWT ký tay trên SQL Server: 201/200/204/400/403/404/409 đúng, ca StartTime ≥ EndTime = 400, manager không sửa được chấm công phòng khác (404), employee1 gọi API admin = 403; đã xóa dữ liệu test |

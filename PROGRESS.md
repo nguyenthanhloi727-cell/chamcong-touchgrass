@@ -61,7 +61,7 @@ Quy tắc chung:
 |---|---|---|---|---|
 | 1 | Khởi tạo repo + 2 project | 7 | 20' | ✅ |
 | 2 | CSDL: entity, DbContext, migration, seed | 3, 4 | 40' | ✅ |
-| 3 | Nền backend: cấu hình, JWT, Swagger, lỗi | 2, 3 | 25' | ⬜ |
+| 3 | Nền backend: cấu hình, JWT, Swagger, lỗi | 2, 3 | 25' | ✅ |
 | 4 | OTP + gửi Email + gửi SMS qua gateway | 1, 2 | 45' | ⬜ |
 | 5 | API xác thực: đăng ký, đăng nhập, Google, bổ sung liên hệ | 1, 2 | 45' | ⬜ |
 | 6 | Phân quyền 2 ô + bảo vệ admin | 3 | 20' | ⬜ |
@@ -160,7 +160,7 @@ Thư mục: `Data/`, `Entities/`.
 
 ## Bước 3 — Nền backend (25') · [Đề mục 2, 3]
 
-- [ ] 3.1 Cấu hình (khung trong `appsettings.example.json`, giá trị thật trong `appsettings.Development.json`):
+- [x] 3.1 Cấu hình (khung trong `appsettings.example.json`, giá trị thật trong `appsettings.Development.json`):
   ```json
   {
     "ConnectionStrings": { "Default": "" },
@@ -175,12 +175,12 @@ Thư mục: `Data/`, `Entities/`.
   }
   ```
   Bind bằng `Options` class (`JwtOptions`, `OtpOptions`, `EmailOptions`, `SmsGatewayOptions`, ...)
-- [ ] 3.2 JWT: `AddAuthentication().AddJwtBearer(...)`; claim `sub`, `role`, `position`; `JwtService` tạo access + refresh token
-- [ ] 3.3 Swagger có nút **Authorize** (Bearer)
-- [ ] 3.4 Middleware bắt lỗi chung → trả `{ "error": "..." }` + mã HTTP đúng (400/401/403/404/409/429/502)
-- [ ] 3.5 CORS cho phép mọi origin (chỉ môi trường Development)
-- [ ] 3.6 Lắng nghe `http://0.0.0.0:5000` (`launchSettings.json` hoặc `--urls`); tắt `UseHttpsRedirection` khi Development
-- [ ] 3.7 `GET /api/health` → `{ "status": "ok" }`
+- [x] 3.2 JWT: `AddAuthentication().AddJwtBearer(...)`; claim `sub`, `role`, `position`; `JwtService` tạo access + refresh token
+- [x] 3.3 Swagger có nút **Authorize** (Bearer)
+- [x] 3.4 Middleware bắt lỗi chung → trả `{ "error": "..." }` + mã HTTP đúng (400/401/403/404/409/429/502)
+- [x] 3.5 CORS cho phép mọi origin (chỉ môi trường Development)
+- [x] 3.6 Lắng nghe `http://0.0.0.0:5000` (`launchSettings.json` hoặc `--urls`); tắt `UseHttpsRedirection` khi Development
+- [x] 3.7 `GET /api/health` → `{ "status": "ok" }`
 
 **Kiểm tra:** `dotnet run` → mở `http://localhost:5000/swagger` · từ điện thoại cùng mạng mở `http://<IP-laptop>:5000/api/health` → ok (mở cổng 5000 trên Windows Firewall nếu cần).
 **Commit:** `feat(api): cau hinh, JWT, swagger, xu ly loi`
@@ -496,3 +496,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 14:45 | 1 | Backend + Flutter tạo xong; `dotnet build` 0 cảnh báo; `flutter build apk --debug` OK khi đặt `TEMP=C:\tmp` (TEMP có dấu cách làm Gradle lỗi "Unable to establish loopback connection"). Commit local, chưa push vì chưa có repo |
 | 15:10 | 1 | Tạo repo public `nguyenthanhloi727-cell/chamcong-touchgrass`, push `main` OK. Máy là của Phú → remote URL có sẵn username Lợi, không đụng credential của Phú |
 | 15:50 | 2 | 8 entity + migration Init + DbSeeder OK. Test bằng `.\SQLEXPRESS` Windows Auth: đủ 8 bảng, 2 index lọc, CHECK chặn user trống Email+SĐT, seed 3 user + 8 chức vụ. `ConnectionStrings:Default` trong appsettings.Development.json còn trống (Lợi tự điền SQL Auth); Seed:*Email/*Phone trống → user seed dùng email giả chưa xác nhận, cần điền trước Bước 5 |
+| 16:20 | 3 | Options, JwtService, Swagger Authorize, ErrorHandlingMiddleware, CORS dev, 0.0.0.0:5000, /api/health OK. Điện thoại mở http://172.16.24.207:5000/api/health ra ok sau khi Lợi mở cổng 5000 trên Firewall. Jwt:Key dev tự sinh, ConnectionStrings:Default dev = .\SQLEXPRESS Windows Auth |

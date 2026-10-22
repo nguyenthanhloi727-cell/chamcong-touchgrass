@@ -68,7 +68,7 @@ Quy tắc chung:
 | 7 | API CRUD | 4 | 40' | ✅ |
 | 8 | API chấm công: QR, GPS, điểm tin cậy, báo cáo | 5b, 5e, 6 | 40' | ✅ |
 | 9 | API khuôn mặt | 5a | 20' | ✅ |
-| 10 | Nền Flutter: package, theme, API client | 7 | 25' | ⬜ |
+| 10 | Nền Flutter: package, theme, API client | 7 | 25' | ✅ |
 | 11 | Màn xác thực Flutter | 1, 2 | 50' | ⬜ |
 | 12 | Điều hướng theo role + 3 dashboard | 3 | 30' | ⬜ |
 | 13 | Màn CRUD (admin) | 4 | 45' | ⬜ |
@@ -310,13 +310,13 @@ Mỗi resource đủ: `GET list` (có tìm kiếm `?q=`), `GET {id}`, `POST`, `P
 
 ## Bước 10 — Nền Flutter (25') · [Đề mục 7]
 
-- [ ] 10.1 Package: `dio`, `flutter_secure_storage`, `go_router`, `google_sign_in`, `geolocator`, `mobile_scanner`, `qr_flutter`, `camera`, `google_mlkit_face_detection`, `local_auth` (⭐ `tflite_flutter` cho embedding)
-- [ ] 10.2 Cấu trúc thư mục: `lib/core/` (api, theme, router), `lib/features/<auth|dashboard|crud|attendance|face|profile>/`
-- [ ] 10.3 **Import dùng đường dẫn tương đối** (để `tool/rename.dart` đổi tên không hỏng import)
-- [ ] 10.4 `BASE_URL` truyền bằng `--dart-define=BASE_URL=http://10.0.2.2:5000` (emulator) hoặc IP LAN (máy thật); có giá trị mặc định
-- [ ] 10.5 `ApiClient` (Dio): gắn Bearer token, tự refresh khi 401, đọc `{error}` hiện SnackBar
-- [ ] 10.6 Theme Material 3, 1 màu chủ đạo, font mặc định
-- [ ] 10.7 Android: `usesCleartextTraffic="true"` **chỉ cho debug** (`src/debug/AndroidManifest.xml`), quyền `INTERNET`, `CAMERA`, `ACCESS_FINE_LOCATION`, `USE_BIOMETRIC`
+- [x] 10.1 Package: `dio`, `flutter_secure_storage`, `go_router`, `google_sign_in`, `geolocator`, `mobile_scanner`, `qr_flutter`, `camera`, `google_mlkit_face_detection`, `local_auth` (⭐ `tflite_flutter` cho embedding)
+- [x] 10.2 Cấu trúc thư mục: `lib/core/` (api, theme, router), `lib/features/<auth|dashboard|crud|attendance|face|profile>/`
+- [x] 10.3 **Import dùng đường dẫn tương đối** (để `tool/rename.dart` đổi tên không hỏng import)
+- [x] 10.4 `BASE_URL` truyền bằng `--dart-define=BASE_URL=http://10.0.2.2:5000` (emulator) hoặc IP LAN (máy thật); có giá trị mặc định
+- [x] 10.5 `ApiClient` (Dio): gắn Bearer token, tự refresh khi 401, đọc `{error}` hiện SnackBar
+- [x] 10.6 Theme Material 3, 1 màu chủ đạo, font mặc định
+- [x] 10.7 Android: `usesCleartextTraffic="true"` **chỉ cho debug** (`src/debug/AndroidManifest.xml`), quyền `INTERNET`, `CAMERA`, `ACCESS_FINE_LOCATION`, `USE_BIOMETRIC`
 
 **Kiểm tra:** app gọi `GET /api/health` hiển thị "ok" trên emulator và máy thật.
 **Commit:** `feat(mobile): nen Flutter, api client, theme, router`
@@ -512,3 +512,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 15:30 | 8 | QrService (HMAC, cửa sổ hiện tại/liền trước), TrustScore (35/30/25/10, ngưỡng 70), Haversine, CheckinService: check-in/out, review, báo cáo tháng, chia sẻ vị trí; migration AddLastLocation; thêm AttendanceStatus.Rejected cho từ chối duyệt. 104 unit test qua. Test HTTP thật (JWT ký tay, SQL Server): QR employee = 403, check-in đủ điều kiện = 100đ, check-in lần 2 = 409, GPS giả = 60đ PendingReview, manager tự duyệt = 403, admin duyệt OK, duyệt lại = 409, báo cáo/share/team đúng; đã xóa dữ liệu test. Qr:Secret dev tự sinh; Geofence dev còn 0,0 - Lợi tự điền tọa độ thật trước khi demo (hoặc tạo Locations) |
 | 15:50 | 8 | Rà soát thêm: giờ chấm công cố định theo giờ VN (VietnamTimeProvider, không phụ thuộc múi giờ máy chủ); chặn khởi động khi thiếu Qr:Secret (≥16 ký tự) / WindowSeconds ≤ 0; cảnh báo log khi Geofence 0,0 và chưa có Locations; khóa theo user chống bấm đúp check-in tạo 2 bản ghi; chọn ca trùng giờ theo giờ bắt đầu; báo cáo thêm RejectedCount; expiresIn QR lấy giờ 1 lần. Thêm 9.4 (faceToken) cho Bước 9. 108 unit test qua, backend khởi động OK |
 | 15:40 | 9 | FaceService + FaceController: enroll (lưu JSON), verify (cosine, ngưỡng `Face:Threshold` mặc định 0.8), login bằng mặt (sai/không có user đều 401 chung), faceToken JWT audience riêng 120s gắn userId; check-in bỏ cờ `faceMatched` của client, tự tính từ `faceToken`. 114 unit test qua. Test HTTP thật: enroll 204 (không token 401), cùng vector → matched score 1 + faceToken, vector ngẫu nhiên → false (0.13), login mặt đúng → JWT, sai → 401; check-in có faceToken → face 35đ, gửi cờ faceMatched=true giả → face 0đ. Đã xóa dữ liệu test |
+| 15:53 | 10 | Nền Flutter: 10 package (bỏ ⭐ tflite_flutter), core/{api,theme,router,config}, ApiClient (Bearer, refresh 401, SnackBar `{error}`), theme M3, quyền Android + cleartext chỉ ở debug, MainActivity → FlutterFragmentActivity (local_auth). analyze sạch, test + build APK OK. Máy thật 2107113SG hiện `Health: ok` (BASE_URL = IP LAN). Lỗi timeout ban đầu do Firewall Public chặn cổng 5000 → Lợi tạo luật `ChamCong API 5000`. Chưa thử emulator (máy không có AVD) |

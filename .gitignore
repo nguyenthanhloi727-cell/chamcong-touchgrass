@@ -3,6 +3,7 @@ appsettings.Development.json
 appsettings.Local.json
 .env
 *.user
+CLAUDE.local.md
 
 # --- .NET ---
 bin/

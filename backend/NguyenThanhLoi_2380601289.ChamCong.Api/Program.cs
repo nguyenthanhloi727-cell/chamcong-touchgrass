@@ -1,9 +1,10 @@
-using System.Text;
+﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Data;
+using NguyenThanhLoi_2380601289.ChamCong.Api.Entities;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Middleware;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Options;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Services;
@@ -27,7 +28,10 @@ builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()))
     .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = ctx =>
     {
-        var msg = ctx.ModelState.Values.SelectMany(v => v.Errors)
+        // Lỗi đọc JSON (key bắt đầu bằng "$") nói rõ hơn "The req field is required."
+        var jsonErr = ctx.ModelState.Where(kv => kv.Key.StartsWith('$') && kv.Value!.Errors.Count > 0)
+            .Select(kv => $"Gia tri khong hop le o truong '{kv.Key.TrimStart('$', '.')}'").FirstOrDefault();
+        var msg = jsonErr ?? ctx.ModelState.Values.SelectMany(v => v.Errors)
             .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Du lieu khong hop le" : e.ErrorMessage)
             .FirstOrDefault() ?? "Du lieu khong hop le";
         return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new { error = msg });
@@ -63,6 +67,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             RoleClaimType = "role",
         };
         o.MapInboundClaims = false;
+        // Role trong token có thể cũ (admin vừa đổi role / khóa tài khoản) -> đối chiếu DB mỗi request
+        o.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async ctx =>
+            {
+                var sub = ctx.Principal?.FindFirst("sub")?.Value;
+                var role = ctx.Principal?.FindFirst("role")?.Value;
+                if (!int.TryParse(sub, out var id)) { ctx.Fail("Token khong hop le"); return; }
+                var db = ctx.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                var cur = await db.Users.AsNoTracking().Where(u => u.Id == id)
+                    .Select(u => new { u.Role, u.Status }).FirstOrDefaultAsync(ctx.HttpContext.RequestAborted);
+                if (cur is null || cur.Status != UserStatus.Active || cur.Role.ToString() != role)
+                    ctx.Fail("Token het hieu luc (role/trang thai da thay doi), hay dang nhap lai hoac refresh");
+            },
+        };
     });
 builder.Services.AddAuthorization();
 

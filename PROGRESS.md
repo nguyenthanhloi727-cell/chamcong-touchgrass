@@ -67,7 +67,7 @@ Quy tắc chung:
 | 6 | Phân quyền 2 ô + bảo vệ admin | 3 | 20' | ✅ |
 | 7 | API CRUD | 4 | 40' | ✅ |
 | 8 | API chấm công: QR, GPS, điểm tin cậy, báo cáo | 5b, 5e, 6 | 40' | ✅ |
-| 9 | API khuôn mặt | 5a | 20' | ⬜ |
+| 9 | API khuôn mặt | 5a | 20' | ✅ |
 | 10 | Nền Flutter: package, theme, API client | 7 | 25' | ⬜ |
 | 11 | Màn xác thực Flutter | 1, 2 | 50' | ⬜ |
 | 12 | Điều hướng theo role + 3 dashboard | 3 | 30' | ⬜ |
@@ -298,10 +298,10 @@ Mỗi resource đủ: `GET list` (có tìm kiếm `?q=`), `GET {id}`, `POST`, `P
 
 ## Bước 9 — API khuôn mặt (20') · [Đề mục 5a]
 
-- [ ] 9.1 `POST /api/face/enroll` `{embedding: float[]}` (đã đăng nhập) → lưu JSON vào `Users.FaceEmbedding`
-- [ ] 9.2 `POST /api/face/verify` `{embedding}` → cosine similarity với embedding đã lưu → `{matched, score}`; ngưỡng đọc từ cấu hình `Face:Threshold` (giá trị chưa chốt, chỉnh khi test thật ở Bước 15)
-- [ ] 9.3 `POST /api/face/login` `{username, embedding}` → khớp → trả JWT (đăng nhập bằng khuôn mặt)
-- [ ] 9.4 `face/verify` khớp → trả thêm `faceToken` (JWT ngắn hạn ~2', ký server); `check-in` nhận `faceToken` và tự tính `faceMatched` thay vì tin cờ client gửi (Bước 8 đang tin cờ `faceMatched` của client)
+- [x] 9.1 `POST /api/face/enroll` `{embedding: float[]}` (đã đăng nhập) → lưu JSON vào `Users.FaceEmbedding`
+- [x] 9.2 `POST /api/face/verify` `{embedding}` → cosine similarity với embedding đã lưu → `{matched, score}`; ngưỡng đọc từ cấu hình `Face:Threshold` (giá trị chưa chốt, chỉnh khi test thật ở Bước 15)
+- [x] 9.3 `POST /api/face/login` `{username, embedding}` → khớp → trả JWT (đăng nhập bằng khuôn mặt)
+- [x] 9.4 `face/verify` khớp → trả thêm `faceToken` (JWT ngắn hạn ~2', ký server); `check-in` nhận `faceToken` và tự tính `faceMatched` thay vì tin cờ client gửi (Bước 8 đang tin cờ `faceMatched` của client)
 
 **Kiểm tra:** gửi 2 vector giống nhau → `matched = true`; vector ngẫu nhiên → `false`.
 **Commit:** `feat(face): enroll, verify, dang nhap bang khuon mat`
@@ -511,3 +511,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 15:20 | 7 | CRUD đủ GET list (?q=) / GET {id} / POST / PUT / DELETE cho departments, positions, shifts, employees, attendances, locations, leave-requests (+approve/reject); đọc mở cho mọi người đăng nhập, ghi chỉ Admin (attendances: Admin/Manager sửa, leave: chủ đơn sửa/rút khi Pending). Xóa còn bị tham chiếu → 409 kèm thông báo. Admin tạo nhân viên coi liên hệ đã xác nhận để đăng nhập được; PUT employees gán phòng ban cho Manager. 85 unit test qua. Test HTTP thật bằng JWT ký tay trên SQL Server: 201/200/204/400/403/404/409 đúng, ca StartTime ≥ EndTime = 400, manager không sửa được chấm công phòng khác (404), employee1 gọi API admin = 403; đã xóa dữ liệu test |
 | 15:30 | 8 | QrService (HMAC, cửa sổ hiện tại/liền trước), TrustScore (35/30/25/10, ngưỡng 70), Haversine, CheckinService: check-in/out, review, báo cáo tháng, chia sẻ vị trí; migration AddLastLocation; thêm AttendanceStatus.Rejected cho từ chối duyệt. 104 unit test qua. Test HTTP thật (JWT ký tay, SQL Server): QR employee = 403, check-in đủ điều kiện = 100đ, check-in lần 2 = 409, GPS giả = 60đ PendingReview, manager tự duyệt = 403, admin duyệt OK, duyệt lại = 409, báo cáo/share/team đúng; đã xóa dữ liệu test. Qr:Secret dev tự sinh; Geofence dev còn 0,0 - Lợi tự điền tọa độ thật trước khi demo (hoặc tạo Locations) |
 | 15:50 | 8 | Rà soát thêm: giờ chấm công cố định theo giờ VN (VietnamTimeProvider, không phụ thuộc múi giờ máy chủ); chặn khởi động khi thiếu Qr:Secret (≥16 ký tự) / WindowSeconds ≤ 0; cảnh báo log khi Geofence 0,0 và chưa có Locations; khóa theo user chống bấm đúp check-in tạo 2 bản ghi; chọn ca trùng giờ theo giờ bắt đầu; báo cáo thêm RejectedCount; expiresIn QR lấy giờ 1 lần. Thêm 9.4 (faceToken) cho Bước 9. 108 unit test qua, backend khởi động OK |
+| 15:40 | 9 | FaceService + FaceController: enroll (lưu JSON), verify (cosine, ngưỡng `Face:Threshold` mặc định 0.8), login bằng mặt (sai/không có user đều 401 chung), faceToken JWT audience riêng 120s gắn userId; check-in bỏ cờ `faceMatched` của client, tự tính từ `faceToken`. 114 unit test qua. Test HTTP thật: enroll 204 (không token 401), cùng vector → matched score 1 + faceToken, vector ngẫu nhiên → false (0.13), login mặt đúng → JWT, sai → 401; check-in có faceToken → face 35đ, gửi cờ faceMatched=true giả → face 0đ. Đã xóa dữ liệu test |

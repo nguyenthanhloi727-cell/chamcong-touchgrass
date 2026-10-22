@@ -11,7 +11,7 @@ using NguyenThanhLoi_2380601289.ChamCong.Api.Services.Rbac;
 namespace NguyenThanhLoi_2380601289.ChamCong.Api.Services.Checkin;
 
 /// <summary>Check-in/out (QR + GPS + điểm tin cậy), duyệt, báo cáo tháng, chia sẻ vị trí.</summary>
-public class CheckinService(AppDbContext db, QrService qr, RbacService rbac, IOptions<GeofenceOptions> geo, TimeProvider clock)
+public class CheckinService(AppDbContext db, QrService qr, JwtService jwt, RbacService rbac, IOptions<GeofenceOptions> geo, TimeProvider clock)
 {
     // Chặn bấm đúp / gửi 2 request cùng lúc vượt qua kiểm tra trùng ca (1 tiến trình backend)
     private static readonly ConcurrentDictionary<int, SemaphoreSlim> UserLocks = new();
@@ -40,7 +40,8 @@ public class CheckinService(AppDbContext db, QrService qr, RbacService rbac, IOp
 
         var (gpsOk, distance) = await CheckGeofenceAsync(lat, lng, ct);
         var qrValid = qr.IsValid(req.QrToken);
-        var (score, b) = TrustScore.Compute(req.FaceMatched, gpsOk, qrValid, req.IsMocked);
+        var faceMatched = jwt.ValidateFaceToken(req.FaceToken, userId);
+        var (score, b) = TrustScore.Compute(faceMatched, gpsOk, qrValid, req.IsMocked);
 
         var status = score < TrustScore.PassThreshold
             ? AttendanceStatus.PendingReview
@@ -49,7 +50,7 @@ public class CheckinService(AppDbContext db, QrService qr, RbacService rbac, IOp
         var a = new Attendance
         {
             UserId = userId, ShiftId = shiftId, CheckInAt = now, Lat = lat, Lng = lng,
-            IsMocked = req.IsMocked, QrValid = qrValid, FaceMatched = req.FaceMatched,
+            IsMocked = req.IsMocked, QrValid = qrValid, FaceMatched = faceMatched,
             TrustScore = score, Status = status,
         };
         db.Attendances.Add(a);

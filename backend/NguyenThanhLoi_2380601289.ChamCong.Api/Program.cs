@@ -23,6 +23,7 @@ builder.Services.Configure<SmsGatewayOptions>(cfg.GetSection("SmsGateway"));
 builder.Services.Configure<GoogleOptions>(cfg.GetSection("Google"));
 builder.Services.Configure<QrOptions>(cfg.GetSection("Qr"));
 builder.Services.Configure<GeofenceOptions>(cfg.GetSection("Geofence"));
+builder.Services.Configure<FaceOptions>(cfg.GetSection("Face"));
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()))
@@ -44,6 +45,7 @@ builder.Services.AddHttpClient<ISmsSender, SmsGatewaySender>(c =>
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddSingleton<IGoogleTokenVerifier, GoogleTokenVerifier>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Face.FaceService>();
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Rbac.RbacService>();
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.MasterDataService>();
 builder.Services.AddScoped<NguyenThanhLoi_2380601289.ChamCong.Api.Services.Crud.EmployeeAdminService>();

@@ -22,6 +22,7 @@ public class CheckinTests
     private readonly AppDbContext _db;
     private readonly TestClock _clock = new(new DateTimeOffset(2026, 10, 22, 7, 55, 0, TimeSpan.Zero));
     private readonly QrService _qr;
+    private readonly JwtService _jwt = new(Microsoft.Extensions.Options.Options.Create(new JwtOptions { Issuer = "i", Audience = "a", Key = new string('k', 40) }));
     private readonly CheckinService _svc;
     private readonly User _admin, _manager, _employee, _otherEmployee;
     private const double Lat = 10.8, Lng = 106.7;
@@ -32,7 +33,7 @@ public class CheckinTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         _qr = new QrService(Microsoft.Extensions.Options.Options.Create(new QrOptions { Secret = "test-secret-test-secret", WindowSeconds = 30 }), _clock);
         var geo = Microsoft.Extensions.Options.Options.Create(new GeofenceOptions { Lat = Lat, Lng = Lng, RadiusMeters = 100 });
-        _svc = new CheckinService(_db, _qr, new RbacService(_db), geo, _clock);
+        _svc = new CheckinService(_db, _qr, _jwt, new RbacService(_db), geo, _clock);
 
         var a = new Department { Name = "A" };
         var b = new Department { Name = "B" };
@@ -60,7 +61,7 @@ public class CheckinTests
     }
 
     private CheckInRequest Req(bool face = true, bool qr = true, double lat = Lat, double lng = Lng, bool mocked = false) =>
-        new() { Lat = lat, Lng = lng, IsMocked = mocked, FaceMatched = face, QrToken = qr ? _qr.Current().Token : "bad.token" };
+        new() { Lat = lat, Lng = lng, IsMocked = mocked, FaceToken = face ? _jwt.CreateFaceToken(_employee.Id, 120) : null, QrToken = qr ? _qr.Current().Token : "bad.token" };
 
     // ---------- QR ----------
 
@@ -147,7 +148,7 @@ public class CheckinTests
     {
         var token = _qr.Current().Token;
         _clock.Now = _clock.Now.AddSeconds(65);
-        var r = await _svc.CheckInAsync(_employee.Id, new CheckInRequest { Lat = Lat, Lng = Lng, FaceMatched = true, QrToken = token }, default);
+        var r = await _svc.CheckInAsync(_employee.Id, new CheckInRequest { Lat = Lat, Lng = Lng, FaceToken = _jwt.CreateFaceToken(_employee.Id, 120), QrToken = token }, default);
         Assert.Equal(0, r.Breakdown.Qr);
         Assert.Equal(75, r.TrustScore);
     }

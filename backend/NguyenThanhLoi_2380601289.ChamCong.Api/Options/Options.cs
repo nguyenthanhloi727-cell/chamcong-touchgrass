@@ -48,6 +48,13 @@ public class QrOptions
     public int WindowSeconds { get; set; } = 30;
 }
 
+public class FaceOptions
+{
+    /// <summary>Ngưỡng cosine similarity để coi là khớp (chưa chốt, chỉnh khi test thật).</summary>
+    public double Threshold { get; set; } = 0.8;
+    public int FaceTokenSeconds { get; set; } = 120;
+}
+
 public class GeofenceOptions
 {
     public double Lat { get; set; }

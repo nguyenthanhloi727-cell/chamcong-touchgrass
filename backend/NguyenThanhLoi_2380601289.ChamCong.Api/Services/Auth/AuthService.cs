@@ -349,7 +349,7 @@ public partial class AuthService(
             u.Role.ToString(), u.PositionId, position, u.DepartmentId, u.FaceEmbedding is not null);
     }
 
-    private async Task<AuthResponse> IssueAsync(User user, CancellationToken ct)
+    public async Task<AuthResponse> IssueAsync(User user, CancellationToken ct)
     {
         var t = jwt.CreateTokens(user, await PositionNameAsync(user, ct));
         return new AuthResponse(t.AccessToken, t.AccessExpiresAt, t.RefreshToken, t.RefreshExpiresAt, await ToInfoAsync(user, ct));

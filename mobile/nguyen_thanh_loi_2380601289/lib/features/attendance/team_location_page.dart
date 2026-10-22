@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/api/api_client.dart';
+import '../../core/widgets/map_tiles.dart';
 import 'attendance_api.dart';
 import 'review_page.dart';
 
@@ -48,12 +49,7 @@ class _TeamLocationPageState extends State<TeamLocationPage> {
                     initialCenter: LatLng(list.first.lat, list.first.lng),
                     initialZoom: 14),
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName:
-                        'com.touchgrass.nguyen_thanh_loi_2380601289',
-                  ),
+                  appTileLayer(),
                   MarkerLayer(markers: [
                     for (final l in list)
                       Marker(

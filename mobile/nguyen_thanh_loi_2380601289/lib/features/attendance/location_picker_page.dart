@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-/// Emulator không có GPS thật: chạm bản đồ (OpenStreetMap) để chọn vị trí.
+import '../../core/widgets/map_tiles.dart';
+
+/// Emulator không có GPS thật: chạm bản đồ (dữ liệu OpenStreetMap) để chọn vị trí.
 class LocationPickerPage extends StatefulWidget {
   final LatLng initial;
   const LocationPickerPage({super.key, required this.initial});
@@ -25,10 +27,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
           onTap: (_, p) => setState(() => _point = p),
         ),
         children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.touchgrass.nguyen_thanh_loi_2380601289',
-          ),
+          appTileLayer(),
           MarkerLayer(markers: [
             Marker(
               point: _point,
@@ -47,7 +46,9 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
             Expanded(
                 child: Text(
                     '${_point.latitude.toStringAsFixed(6)}, ${_point.longitude.toStringAsFixed(6)}')),
+            // Theme đặt minimumSize rộng vô hạn; trong Row phải ghi đè, nếu không layout vỡ và màn trắng.
             FilledButton(
+                style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
                 onPressed: () => Navigator.pop(context, _point),
                 child: const Text('Dùng vị trí này')),
           ]),

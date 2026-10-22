@@ -64,7 +64,7 @@ Quy tắc chung:
 | 3 | Nền backend: cấu hình, JWT, Swagger, lỗi | 2, 3 | 25' | ✅ |
 | 4 | OTP + gửi Email + gửi SMS qua gateway | 1, 2 | 45' | ✅ |
 | 5 | API xác thực: đăng ký, đăng nhập, Google, bổ sung liên hệ | 1, 2 | 45' | ✅ |
-| 6 | Phân quyền 2 ô + bảo vệ admin | 3 | 20' | ⬜ |
+| 6 | Phân quyền 2 ô + bảo vệ admin | 3 | 20' | ✅ |
 | 7 | API CRUD | 4 | 40' | ⬜ |
 | 8 | API chấm công: QR, GPS, điểm tin cậy, báo cáo | 5b, 5e, 6 | 40' | ⬜ |
 | 9 | API khuôn mặt | 5a | 20' | ⬜ |
@@ -248,11 +248,11 @@ Controller: `AuthController`, `MeController`.
 
 ## Bước 6 — Phân quyền 2 ô + bảo vệ admin (20') · [Đề mục 3]
 
-- [ ] 6.1 `[Authorize(Roles = "Admin")]` cho quản trị; `[Authorize(Roles = "Admin,Manager")]` cho xem/duyệt phòng ban; `[Authorize]` cho nhân viên
-- [ ] 6.2 Đổi role: `PUT /api/employees/{id}/role` `{role, positionId}` → chặn nếu `Position.RoleGroup ≠ role`; Admin thì `positionId = null`
-- [ ] 6.3 Bảo vệ admin: không tự hạ quyền mình, không xóa/hạ admin cuối cùng, không ai tự nâng mình lên Admin → 409/403
-- [ ] 6.4 Manager chỉ thấy nhân viên cùng `DepartmentId`
-- [ ] 6.5 `GET /api/positions?roleGroup=Manager|Employee` → cho dropdown ô 2
+- [x] 6.1 `[Authorize(Roles = "Admin")]` cho quản trị; `[Authorize(Roles = "Admin,Manager")]` cho xem/duyệt phòng ban; `[Authorize]` cho nhân viên
+- [x] 6.2 Đổi role: `PUT /api/employees/{id}/role` `{role, positionId}` → chặn nếu `Position.RoleGroup ≠ role`; Admin thì `positionId = null`
+- [x] 6.3 Bảo vệ admin: không tự hạ quyền mình, không xóa/hạ admin cuối cùng, không ai tự nâng mình lên Admin → 409/403
+- [x] 6.4 Manager chỉ thấy nhân viên cùng `DepartmentId`
+- [x] 6.5 `GET /api/positions?roleGroup=Manager|Employee` → cho dropdown ô 2
 
 **Kiểm tra:** đăng nhập `employee1` gọi API admin → 403 · admin tự hạ quyền → bị chặn · gán Kế toán cho Manager → 400.
 **Commit:** `feat(rbac): phan quyen 2 o role + chuc vu, bao ve admin`
@@ -499,3 +499,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 16:20 | 3 | Options, JwtService, Swagger Authorize, ErrorHandlingMiddleware, CORS dev, 0.0.0.0:5000, /api/health OK. Điện thoại mở http://172.16.24.207:5000/api/health ra ok sau khi Lợi mở cổng 5000 trên Firewall. Jwt:Key dev tự sinh, ConnectionStrings:Default dev = .\SQLEXPRESS Windows Auth |
 | 14:55 | 4 | OtpService, SmtpEmailSender, SmsGatewaySender, PhoneNormalizer, FakeSmsSender + project test (25 test qua). Test thật: SMS tới máy Lợi (gateway Delivered ~2.5s), mail nhận được (Gmail App Password), tắt gateway -> 502 sau ~3s; DB chi co CodeHash, OTP gui loi IsUsed=1. Da xoa endpoint tam /api/dev |
 | 15:10 | 5 | AuthService + AuthController/MeController, 56 unit test qua. Test thật: đăng ký chỉ Email → mail OTP → verify → emailVerified; login user chỉ email → OTP mail; SMS OTP thật tới máy Lợi → verify ra JWT admin; sai 5 lần → hủy (429), resend <60s → 429, dùng lại mã → 400, refresh OK. Sửa claim role JWT (trước ghi URI dài, Authorize Roles sẽ không khớp). Refresh token = JWT audience riêng (không thêm bảng). Đăng ký chỉ SĐT chỉ test bằng unit test (SĐT Lợi đã thuộc admin). Google để Bước 11 |
+| 17:10 | 6 | RbacService + EmployeesController (GET list/get theo phạm vi, PUT {id}/role) + PositionsController (?roleGroup=). 66 unit test qua. Test HTTP thật bằng JWT ký tay: employee1 → /api/employees & PUT role = 403; manager1 PUT role = 403, xem list chỉ cùng phòng; admin tự hạ = 403, Kế toán cho Manager = 400, Admin kèm chức vụ = 400, đổi hợp lệ = 200. Sửa: thêm JsonStringEnumConverter (enum Role nhận chuỗi). Admin cuối cùng → 409 chỉ test bằng unit test (chỉ có 1 admin thật) |

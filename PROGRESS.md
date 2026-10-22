@@ -75,7 +75,7 @@ Quy tắc chung:
 | 14 | Màn chấm công: GPS + QR + kết quả điểm | 5b, 5e, 6 | 40' | ✅ |
 | 15 | Màn khuôn mặt | 5a | 45' | ✅ |
 | 16 | Màn hồ sơ: bổ sung Email/SĐT | 1 | 20' | ✅ |
-| 17 | `tool/rename.dart` | Luật đặt tên | 25' | ⬜ |
+| 17 | `tool/rename.dart` | Luật đặt tên | 25' | ✅ |
 | 18 | Test toàn luồng theo tiêu chí nghiệm thu | Tất cả | 30' | ⬜ |
 | 19 | README + đổi tên 4 thành viên + nộp | 7, luật | 30' | ⬜ |
 
@@ -447,14 +447,14 @@ Chỉ dùng `dart:io`, không cần package. Chạy ở gốc repo:
 dart run tool/rename.dart --name "Hồ Ngọc Phú" --mssv 2380601699
 ```
 
-- [ ] 17.1 Bỏ dấu tiếng Việt (bảng thay ký tự, `đ/Đ → d/D`) → `snake` = `ho_ngoc_phu_2380601699`, `Pascal` = `HoNgocPhu_2380601699`
-- [ ] 17.2 Tự đọc tên hiện tại (từ `name:` trong `pubspec.yaml` và tên file `.csproj`) — không ghi cứng tên Lợi
-- [ ] 17.3 Flutter: `name:` trong `pubspec.yaml`; mọi `package:<cũ>/` trong `lib/`, `test/`
-- [ ] 17.4 Android: `applicationId`, `namespace` trong `android/app/build.gradle(.kts)`; `android:label` = `"<Họ tên> - <MSSV>"`; chuyển thư mục `kotlin/com/touchgrass/<cũ>/` → `<mới>/` và sửa dòng `package` trong `MainActivity.kt`
-- [ ] 17.5 Đổi tên thư mục `mobile/<cũ>/` → `mobile/<mới>/`
-- [ ] 17.6 Backend: đổi tên thư mục + file `.csproj`; sửa đường dẫn trong `ChamCong.sln`; thay `namespace`/`using` trong mọi `.cs`; `RootNamespace` nếu có
-- [ ] 17.7 Cuối script: quét toàn repo (trừ `bin/ obj/ build/ .git/`) tìm tên cũ → in số chỗ còn sót (phải = 0)
-- [ ] 17.8 Tùy chọn `--dry-run` chỉ in những gì sẽ đổi
+- [x] 17.1 Bỏ dấu tiếng Việt (bảng thay ký tự, `đ/Đ → d/D`) → `snake` = `ho_ngoc_phu_2380601699`, `Pascal` = `HoNgocPhu_2380601699`
+- [x] 17.2 Tự đọc tên hiện tại (từ `name:` trong `pubspec.yaml` và tên file `.csproj`) — không ghi cứng tên Lợi
+- [x] 17.3 Flutter: `name:` trong `pubspec.yaml`; mọi `package:<cũ>/` trong `lib/`, `test/`
+- [x] 17.4 Android: `applicationId`, `namespace` trong `android/app/build.gradle(.kts)`; `android:label` = `"<Họ tên> - <MSSV>"`; chuyển thư mục `kotlin/com/touchgrass/<cũ>/` → `<mới>/` và sửa dòng `package` trong `MainActivity.kt`
+- [x] 17.5 Đổi tên thư mục `mobile/<cũ>/` → `mobile/<mới>/`
+- [x] 17.6 Backend: đổi tên thư mục + file `.csproj`; sửa đường dẫn trong `ChamCong.sln`; thay `namespace`/`using` trong mọi `.cs`; `RootNamespace` nếu có
+- [x] 17.7 Cuối script: quét toàn repo (trừ `bin/ obj/ build/ .git/`) tìm tên cũ → in số chỗ còn sót (phải = 0)
+- [x] 17.8 Tùy chọn `--dry-run` chỉ in những gì sẽ đổi
 
 **Kiểm tra:** trên 1 bản copy repo, chạy cho Phú → `flutter clean && flutter pub get && flutter run` OK, `dotnet build` OK, quét tên cũ = 0. Chạy ngược lại về tên Lợi → giống ban đầu.
 **Commit:** `feat(tool): rename.dart doi ten project theo ho ten + MSSV`
@@ -537,3 +537,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 20:50 | 14 | Màn QR (đếm ngược 30s, admin đặt điểm chấm công 200 m), luồng chấm công (GPS→quét QR→gửi; chưa có face nên faceMatched=false, tối đa 65 điểm → PendingReview), màn kết quả, check-out, chia sẻ vị trí + bản đồ, màn duyệt, máy thật dùng GPS thật / emulator chọn điểm trên bản đồ. analyze sạch, 9 test qua, build APK OK, đã cài lên máy thật. **Chưa test 2 máy (quét QR → duyệt) — Lợi chọn commit trước**, kiểm tra lại ở Bước 18 |
 | 21:10 | 15 | Màn chụp mặt (camera trước, ML Kit, chớp mắt mở→nhắm→mở trong 5s), đăng ký mặt (icon trên thanh tiêu đề dashboard, màn Hồ sơ làm ở Bước 16), đăng nhập bằng mặt, check-in có bước xác minh mặt gửi `faceToken`. **Embedding dùng bản dự phòng (vector đường viền ML Kit), không dùng MobileFaceNet** (model chưa chốt nguồn/license) — ghi trong README. 15.7 (`local_auth`) không cần. analyze sạch, 15 test qua, build APK OK. Máy thật: đăng ký mặt Lợi → đăng nhập bằng mặt OK; ảnh tĩnh không qua chớp mắt; mặt người khác bị từ chối |
 | 22:00 | 16 | Màn Hồ sơ (`/profile`, mở từ icon trên thanh tiêu đề): nhãn Đã xác nhận / Chưa xác nhận / Chưa có cho Email + SĐT, nút Thêm/Xác nhận → `POST /api/me/contact` → màn OTP dùng chung (route `/profile/otp`), nút đăng ký khuôn mặt. analyze sạch, 16 test qua. Test máy thật: thêm SĐT → SMS thật → xác nhận; đăng nhập lại OTP đi qua SMS |
+| 22:20 | 17 | `tool/rename.dart` (chỉ dart:io, có `--dry-run`): tự đọc tên cũ từ pubspec/.csproj/android:label, sửa nội dung + đổi tên thư mục/file (kotlin, mobile, backend, Tests), giữ BOM, bỏ qua CLAUDE/PROGRESS/PLAN. Test trên bản copy: chạy cho Phú → `flutter clean/pub get`, analyze sạch, 16 test Flutter, `dotnet build` 0 lỗi, 115 test backend, build APK debug OK, quét tên cũ = 0; chạy ngược về Lợi → 158 file giống hệt bản gốc. Lưu ý: nếu Gradle daemon còn giữ thư mục `mobile/` thì đổi tên bị `Access denied` → `gradlew --stop` rồi chạy lại |

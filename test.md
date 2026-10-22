@@ -111,13 +111,13 @@ Trước phần này đảm bảo `employee1` đang giữ `SĐT_THẬT` (mục 2
 
 ### Phần 5 — Dashboard Quản lý (emulator, `manager1`) · ~1:30
 Trước phần này gán `SĐT_THẬT` cho `manager1` (mục 2.1). Đăng xuất `admin` → đăng nhập `manager1` + mật khẩu → nhập OTP.
-- Dashboard **Quản lý**: dòng *Hôm nay: N lượt chấm công · N đi muộn · N chờ duyệt*, mục **Chờ duyệt**, **Đi muộn hôm nay**, **Nhân viên phòng (N)** (gồm `manager1` và `employee1`).
+- Dashboard **Quản lý**: 3 ô thống kê chạy số (**Lượt chấm công**, **Đi muộn**, **Chờ duyệt**), mục **Chờ duyệt**, **Đi muộn hôm nay**, **Nhân viên phòng (N)** (gồm `manager1` và `employee1`).
 - **Duyệt chi tiết** → màn **Duyệt chấm công** (hiện *Không có bản ghi chờ duyệt* nếu chưa có; 7.2 sẽ tạo bản ghi).
 - **Vị trí nhân viên**: chưa ai chia sẻ thì hiện *Chưa có ai chia sẻ vị trí*; 7.3 sẽ có điểm.
 
 ### Phần 6 — Admin hiển thị QR (emulator, `admin`) · ~1:00
 Đăng nhập `admin` → ô **Màn QR** → **Màn QR chấm công**.
-- Mã QR đổi liên tục, dòng **Đổi mã sau N giây** đếm ngược trong **60 giây** (có thể bắt đầu ở giữa chu kỳ rồi tự về 60).
+- Mã QR đổi liên tục, dòng **Đổi mã sau N giây** đếm ngược trong **60 giây** (có thể bắt đầu ở giữa chu kỳ rồi tự về 60). Quanh mã có **vòng đếm ngược** thu nhỏ dần, đổi từ xanh sang cam (≤ 15 giây) rồi đỏ (≤ 5 giây); mã mới hiện ra bằng hiệu ứng mờ-phóng nhẹ.
 - Bấm **Đặt vị trí hiện tại làm điểm chấm công** → bản đồ chọn điểm (đúng chỗ bạn ngồi) → xác nhận → thông báo `Đã thêm "Điểm chấm công N" ... bán kính 200 m`.
 
 **Giữ màn hình này mở** và phóng to cửa sổ emulator cho dễ quét.

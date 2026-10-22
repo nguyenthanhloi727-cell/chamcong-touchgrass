@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/api/api_client.dart';
+import '../../core/widgets/animations.dart';
+import '../../core/widgets/ui.dart';
 import '../auth/session_store.dart';
 import 'dashboard_api.dart';
 import 'dashboard_models.dart';
@@ -56,7 +58,7 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
       onRefresh: _reload,
       floating: FloatingActionButton.extended(
         onPressed: () => context.push('/manager/qr'),
-        icon: const Icon(Icons.qr_code_2),
+        icon: const Icon(Icons.qr_code_2_rounded),
         label: const Text('Màn QR'),
       ),
       body: AsyncSection(
@@ -65,71 +67,182 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
           final (employees, today) = data;
           final late = today.where((a) => a.isLate).toList();
           final pending = today.where((a) => a.isPending).toList();
-          final text = Theme.of(context).textTheme;
           return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
             children: [
-              Text('Hôm nay: ${today.length} lượt chấm công · '
-                  '${late.length} đi muộn · ${pending.length} chờ duyệt'),
-              const SizedBox(height: 8),
-              Wrap(spacing: 8, children: [
-                ActionChip(
-                    avatar: const Icon(Icons.rule, size: 18),
-                    label: const Text('Duyệt chi tiết'),
-                    onPressed: () async {
-                      await context.push('/manager/review');
-                      _reload();
-                    }),
-                ActionChip(
-                    avatar: const Icon(Icons.location_searching, size: 18),
-                    label: const Text('Vị trí nhân viên'),
-                    onPressed: () => context.push('/manager/team')),
-              ]),
-              const SizedBox(height: 16),
-              Text('Chờ duyệt', style: text.titleMedium),
-              if (pending.isEmpty) const ListTile(title: Text('Không có')),
-              for (final a in pending)
-                Card(
-                  child: ListTile(
-                    title: Text(a.fullName),
-                    subtitle: Text('Điểm tin cậy ${a.trustScore}'
-                        '${a.isMocked ? ' · GPS giả' : ''}'),
-                    trailing: Wrap(children: [
-                      IconButton(
-                        tooltip: 'Từ chối',
-                        icon: const Icon(Icons.close, color: Colors.red),
-                        onPressed: () => _review(a, false),
+              FadeSlideIn(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _StatTile(
+                          icon: Icons.fact_check_rounded,
+                          color: const Color(0xFF16A34A),
+                          value: today.length,
+                          label: 'Lượt chấm công'),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatTile(
+                          icon: Icons.alarm_rounded,
+                          color: const Color(0xFFEA580C),
+                          value: late.length,
+                          label: 'Đi muộn'),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatTile(
+                          icon: Icons.hourglass_top_rounded,
+                          color: const Color(0xFF2563EB),
+                          value: pending.length,
+                          label: 'Chờ duyệt'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              FadeSlideIn(
+                index: 1,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.tonalIcon(
+                        style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48)),
+                        icon: const Icon(Icons.rule_rounded),
+                        label: const Text('Duyệt chi tiết'),
+                        onPressed: () async {
+                          await context.push('/manager/review');
+                          _reload();
+                        },
                       ),
-                      IconButton(
-                        tooltip: 'Duyệt',
-                        icon: const Icon(Icons.check, color: Colors.green),
-                        onPressed: () => _review(a, true),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton.tonalIcon(
+                        style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48)),
+                        icon: const Icon(Icons.location_searching_rounded),
+                        label: const Text('Vị trí nhân viên'),
+                        onPressed: () => context.push('/manager/team'),
                       ),
-                    ]),
+                    ),
+                  ],
+                ),
+              ),
+              const SectionTitle('Chờ duyệt'),
+              if (pending.isEmpty)
+                const EmptyState(
+                    icon: Icons.task_alt_rounded, text: 'Không có'),
+              for (var i = 0; i < pending.length; i++)
+                FadeSlideIn(
+                  index: i + 2,
+                  child: Card(
+                    child: ListTile(
+                      leading: InitialsAvatar(name: pending[i].fullName),
+                      title: Text(pending[i].fullName),
+                      subtitle: Text('Điểm tin cậy ${pending[i].trustScore}'
+                          '${pending[i].isMocked ? ' · GPS giả' : ''}'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton.filledTonal(
+                            tooltip: 'Từ chối',
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  const Color(0xFFDC2626).withValues(alpha: 0.14),
+                              foregroundColor: const Color(0xFFDC2626),
+                            ),
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () => _review(pending[i], false),
+                          ),
+                          const SizedBox(width: 4),
+                          IconButton.filledTonal(
+                            tooltip: 'Duyệt',
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  const Color(0xFF16A34A).withValues(alpha: 0.14),
+                              foregroundColor: const Color(0xFF16A34A),
+                            ),
+                            icon: const Icon(Icons.check_rounded),
+                            onPressed: () => _review(pending[i], true),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              const SizedBox(height: 16),
-              Text('Đi muộn hôm nay', style: text.titleMedium),
-              if (late.isEmpty) const ListTile(title: Text('Không có')),
-              for (final a in late)
-                ListTile(
-                  leading: const Icon(Icons.alarm),
-                  title: Text(a.fullName),
-                  subtitle: Text('Vào lúc ${hm(a.checkInAt)}'),
+              const SectionTitle('Đi muộn hôm nay'),
+              if (late.isEmpty)
+                const EmptyState(
+                    icon: Icons.sentiment_satisfied_alt_rounded,
+                    text: 'Không có'),
+              for (var i = 0; i < late.length; i++)
+                FadeSlideIn(
+                  index: i,
+                  child: Card(
+                    child: ListTile(
+                      leading: const IconBadge(
+                          icon: Icons.alarm_rounded, color: Color(0xFFEA580C)),
+                      title: Text(late[i].fullName),
+                      subtitle: Text('Vào lúc ${hm(late[i].checkInAt)}'),
+                    ),
+                  ),
                 ),
-              const SizedBox(height: 16),
-              Text('Nhân viên phòng (${employees.length})',
-                  style: text.titleMedium),
-              for (final e in employees)
-                ListTile(
-                  leading: const Icon(Icons.person),
-                  title: Text(e.fullName),
-                  subtitle: Text(
-                      '${roleLabel(e.role)}${e.position != null ? ' · ${e.position}' : ''}'),
+              SectionTitle('Nhân viên phòng (${employees.length})'),
+              for (var i = 0; i < employees.length; i++)
+                FadeSlideIn(
+                  index: i,
+                  child: Card(
+                    child: ListTile(
+                      leading: InitialsAvatar(name: employees[i].fullName),
+                      title: Text(employees[i].fullName),
+                      subtitle: Text(
+                          '${roleLabel(employees[i].role)}${employees[i].position != null ? ' · ${employees[i].position}' : ''}'),
+                    ),
+                  ),
                 ),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final int value;
+  final String label;
+  const _StatTile({
+    required this.icon,
+    required this.color,
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IconBadge(icon: icon, color: color, size: 34),
+            const SizedBox(height: 10),
+            CountUp(
+              value: value,
+              style: text.headlineMedium
+                  ?.copyWith(fontWeight: FontWeight.w800, color: color),
+            ),
+            Text(label,
+                style: text.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ],
+        ),
       ),
     );
   }

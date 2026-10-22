@@ -35,6 +35,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Lưu'));
     await tester.pumpAndSettle();
-    expect(find.text('B'), findsOneWidget);
+    // Avatar chữ cái đầu cũng hiện 'B', nên đếm số dòng danh sách (A và B) thay vì đếm chữ.
+    expect(find.byType(ListTile), findsNWidgets(2));
+    expect(find.text('B'), findsWidgets);
   });
 }

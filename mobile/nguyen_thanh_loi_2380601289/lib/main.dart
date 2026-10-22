@@ -30,6 +30,8 @@ class _AppState extends State<App> {
     return MaterialApp.router(
       title: 'Chấm công',
       theme: buildAppTheme(),
+      darkTheme: buildAppTheme(Brightness.dark),
+      themeMode: ThemeMode.system,
       scaffoldMessengerKey: messengerKey,
       routerConfig: _router,
     );

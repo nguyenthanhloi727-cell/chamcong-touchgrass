@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/widgets/animations.dart';
+import '../../core/widgets/ui.dart';
 import '../auth/session_store.dart';
 import 'dashboard_models.dart';
 
@@ -38,7 +40,7 @@ class DashboardShell extends StatelessWidget {
         actions: [
           IconButton(
             tooltip: 'Hồ sơ',
-            icon: const Icon(Icons.account_circle),
+            icon: const Icon(Icons.account_circle_outlined),
             onPressed: () => context.push('/profile'),
           ),
           IconButton(
@@ -51,21 +53,59 @@ class DashboardShell extends StatelessWidget {
       floatingActionButton: floating,
       body: Column(
         children: [
-          Container(
-            width: double.infinity,
-            color: scheme.primaryContainer,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(u.fullName,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                Text('${roleLabel(u.role)}$position',
-                    key: const Key('role-position')),
-              ],
+          FadeSlideIn(
+            offset: -14,
+            child: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [scheme.primary, Color.lerp(scheme.primary, Colors.black, 0.28)!],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: scheme.primary.withValues(alpha: 0.28),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  InitialsAvatar(
+                    name: u.fullName,
+                    radius: 26,
+                    background: Colors.white.withValues(alpha: 0.22),
+                    foreground: Colors.white,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(u.fullName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: scheme.onPrimary)),
+                        const SizedBox(height: 2),
+                        Text('${roleLabel(u.role)}$position',
+                            key: const Key('role-position'),
+                            style: TextStyle(
+                                color: scheme.onPrimary.withValues(alpha: 0.85))),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(child: content),
@@ -88,12 +128,18 @@ class AsyncSection<T> extends StatelessWidget {
       future: future,
       builder: (context, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
+          return const SkeletonList(count: 5);
         }
         if (snap.hasError) {
           return ListView(
             padding: const EdgeInsets.all(16),
-            children: [Text('Không tải được dữ liệu. Kéo xuống để thử lại.\n${snap.error}')],
+            children: [
+              EmptyState(
+                icon: Icons.cloud_off_outlined,
+                text:
+                    'Không tải được dữ liệu. Kéo xuống để thử lại.\n${snap.error}',
+              ),
+            ],
           );
         }
         return builder(snap.data as T);

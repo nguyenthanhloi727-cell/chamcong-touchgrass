@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api/api_client.dart';
+import '../../core/widgets/animations.dart';
+import '../../core/widgets/ui.dart';
 
 typedef Json = Map<String, dynamic>;
 
@@ -100,11 +102,17 @@ class _FormDialogState extends State<FormDialog> {
               children: [
                 for (final c in widget.children)
                   Padding(padding: const EdgeInsets.only(bottom: 12), child: c),
-                if (_error != null)
-                  Text(_error!,
-                      key: const Key('form-error'),
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.error)),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  child: _error == null
+                      ? const SizedBox(width: double.infinity)
+                      : Text(_error!,
+                          key: const Key('form-error'),
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.error)),
+                ),
               ],
             ),
           ),
@@ -221,7 +229,6 @@ class _CrudListPageState extends State<CrudListPage> {
                 decoration: InputDecoration(
                   hintText: 'Tìm kiếm',
                   prefixIcon: const Icon(Icons.search),
-                  border: const OutlineInputBorder(),
                   isDense: true,
                   suffixIcon: IconButton(
                     tooltip: 'Xóa tìm kiếm',
@@ -242,14 +249,17 @@ class _CrudListPageState extends State<CrudListPage> {
                 future: _data,
                 builder: (context, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const SkeletonList(count: 6, itemHeight: 68);
                   }
                   if (snap.hasError) {
                     return ListView(
                       padding: const EdgeInsets.all(16),
                       children: [
-                        Text(
-                            'Không tải được dữ liệu. Kéo xuống để thử lại.\n${apiErrorMessage(snap.error!)}')
+                        EmptyState(
+                          icon: Icons.cloud_off_outlined,
+                          text:
+                              'Không tải được dữ liệu. Kéo xuống để thử lại.\n${apiErrorMessage(snap.error!)}',
+                        )
                       ],
                     );
                   }
@@ -257,31 +267,42 @@ class _CrudListPageState extends State<CrudListPage> {
                   if (items.isEmpty) {
                     return ListView(
                       padding: const EdgeInsets.all(32),
-                      children: const [Center(child: Text('Chưa có dữ liệu'))],
+                      children: const [
+                        EmptyState(text: 'Chưa có dữ liệu'),
+                      ],
                     );
                   }
-                  return ListView.separated(
-                    padding: const EdgeInsets.only(bottom: 88),
+                  return ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
                     itemCount: items.length,
-                    separatorBuilder: (_, _) => const Divider(height: 1),
                     itemBuilder: (context, i) {
                       final item = items[i];
-                      return ListTile(
-                        title: Text(widget.titleOf(item)),
-                        subtitle: Text(widget.subtitleOf(item)),
-                        onTap: () => _openForm(item),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (widget.trailingOf?.call(item) != null)
-                              widget.trailingOf!(item)!,
-                            if (widget.canDelete)
-                              IconButton(
-                                tooltip: 'Xóa',
-                                icon: const Icon(Icons.delete_outline),
-                                onPressed: () => _delete(item),
-                              ),
-                          ],
+                      final title = widget.titleOf(item);
+                      return FadeSlideIn(
+                        index: i,
+                        child: Card(
+                          clipBehavior: Clip.antiAlias,
+                          child: ListTile(
+                            contentPadding:
+                                const EdgeInsets.fromLTRB(14, 4, 6, 4),
+                            leading: InitialsAvatar(name: title),
+                            title: Text(title),
+                            subtitle: Text(widget.subtitleOf(item)),
+                            onTap: () => _openForm(item),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (widget.trailingOf?.call(item) != null)
+                                  widget.trailingOf!(item)!,
+                                if (widget.canDelete)
+                                  IconButton(
+                                    tooltip: 'Xóa',
+                                    icon: const Icon(Icons.delete_outline),
+                                    onPressed: () => _delete(item),
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
                       );
                     },

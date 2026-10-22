@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/api/api_client.dart';
+import '../../core/widgets/animations.dart';
 import 'auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -57,14 +58,64 @@ class _LoginPageState extends State<LoginPage> {
     final bigButton = OutlinedButton.styleFrom(
       minimumSize: const Size.fromHeight(48),
     );
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Đăng nhập')),
       body: SafeArea(
         child: Form(
           key: _form,
           child: ListView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
             children: [
+              Column(
+                children: [
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.4, end: 1),
+                    duration: const Duration(milliseconds: 900),
+                    curve: Curves.elasticOut,
+                    builder: (context, v, child) =>
+                        Transform.scale(scale: v, child: child),
+                    child: Container(
+                      width: 84,
+                      height: 84,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(26),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            scheme.primary,
+                            Color.lerp(scheme.primary, Colors.black, 0.35)!,
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: scheme.primary.withValues(alpha: 0.35),
+                            blurRadius: 24,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.fingerprint,
+                          size: 48, color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  FadeSlideIn(
+                    index: 1,
+                    child: Text('Chấm công',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.w800)),
+                  ),
+                  FadeSlideIn(
+                    index: 2,
+                    child: Text('Đăng nhập để tiếp tục',
+                        style: TextStyle(color: scheme.onSurfaceVariant)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
               TextFormField(
                 controller: _username,
                 enabled: !_busy,

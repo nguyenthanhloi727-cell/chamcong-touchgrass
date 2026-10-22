@@ -2,10 +2,16 @@
 
 Đọc `PLAN.md` (yêu cầu) và `PROGRESS.md` (các bước làm theo thứ tự) trước khi làm bất cứ việc gì.
 
-## Cách chọn bước tiếp theo
-- Làm theo prompt mẫu trong `PROGRESS.md`, **trừ Bước 0**: các mục còn lại của Bước 0 do người dùng tự xử lý, bỏ qua khi tìm bước tiếp theo.
-- Bước tiếp theo = bước có số nhỏ nhất (từ Bước 1 trở đi) còn mục `[ ]` chưa tick.
-- Xong mỗi bước: tick `[x]`, đổi trạng thái ở "Bảng tổng tiến độ", thêm 1 dòng "Nhật ký", commit đúng message ghi trong bước, push `main`.
+## Quy trình: MỖI CONTEXT LÀM ĐÚNG 1 BƯỚC
+Quy trình này **thay cho** câu "LÀM LUÔN Bước N+1" trong prompt mẫu của `PROGRESS.md`.
+
+1. **Chọn bước:** người dùng ghi bước nào thì làm bước đó. Không ghi số → lấy bước có số nhỏ nhất (từ Bước 1 trở đi) còn mục `[ ]`. **Bỏ qua Bước 0** (người dùng tự xử lý).
+2. **Làm:** báo "Đang làm Bước N — <tên>", làm hết các mục N.x chưa tick. Chỉ làm trong phạm vi bước đó, không lan sang bước khác.
+3. **Tự test:** chạy đúng phần "Kiểm tra" của bước. Lỗi thì sửa đến khi qua. Phần kiểm tra cần thao tác của người dùng → dừng, nói rõ cần làm gì, chờ kết quả rồi mới tick.
+4. **Test OK → tự ghi `PROGRESS.md`:** tick `[x]` các mục, đổi trạng thái ở "Bảng tổng tiến độ" sang ✅, thêm 1 dòng "Nhật ký" (giờ, bước, kết quả).
+5. **Tự commit + push:** commit đúng message ghi trong bước, push `main`. Không cần hỏi.
+6. **Báo và DỪNG:** viết "✅ Xong Bước N. Bước tiếp theo: **Bước M — <tên>**. Mở context mới và gõ: `Làm Bước M theo CLAUDE.md`." Rồi **dừng, không làm Bước M** trong context này.
+7. Lặp lại ở context mới đến khi hết `PROGRESS.md` (Bước 19).
 
 ## Tên và đường dẫn (bản gốc mang tên Lợi)
 - Backend: `backend/NguyenThanhLoi_2380601289.ChamCong.Api/`, namespace `NguyenThanhLoi_2380601289.ChamCong.Api`

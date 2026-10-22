@@ -1,0 +1,36 @@
+# --- Bi mat: KHONG commit ---
+appsettings.Development.json
+appsettings.Local.json
+.env
+*.user
+
+# --- .NET ---
+bin/
+obj/
+.vs/
+*.suo
+TestResults/
+
+# --- Flutter / Dart ---
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+*.iml
+.idea/
+
+# --- Android ---
+local.properties
+.gradle/
+*.jks
+*.keystore
+key.properties
+google-services.json
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/

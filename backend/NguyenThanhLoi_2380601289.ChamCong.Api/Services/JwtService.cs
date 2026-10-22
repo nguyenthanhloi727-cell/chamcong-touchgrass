@@ -24,15 +24,52 @@ public class JwtService(IOptions<JwtOptions> options)
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(ClaimTypes.Role, user.Role.ToString()),
+            new("role", user.Role.ToString()), // khớp RoleClaimType = "role" ở Program.cs
             new("position", positionName ?? ""),
         };
         var creds = new SigningCredentials(CreateKey(_o.Key), SecurityAlgorithms.HmacSha256);
         var jwt = new JwtSecurityToken(_o.Issuer, _o.Audience, claims, now, accessExp, creds);
         var access = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        return new TokenPair(access, accessExp, CreateRefreshToken(), now.AddDays(_o.RefreshDays));
+        var refreshExp = now.AddDays(_o.RefreshDays);
+        var refreshClaims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Convert.ToHexString(RandomNumberGenerator.GetBytes(16))),
+            new("typ", "refresh"),
+        };
+        // audience riêng → refresh token không dùng được làm access token
+        var refresh = new JwtSecurityTokenHandler().WriteToken(
+            new JwtSecurityToken(_o.Issuer, RefreshAudience, refreshClaims, now, refreshExp, creds));
+
+        return new TokenPair(access, accessExp, refresh, refreshExp);
     }
 
-    public static string CreateRefreshToken() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    private string RefreshAudience => _o.Audience + ".refresh";
+
+    /// <summary>Kiểm tra refresh token (chữ ký, hạn, audience riêng); trả userId hoặc null.</summary>
+    public int? ValidateRefreshToken(string token)
+    {
+        try
+        {
+            var handler = new JwtSecurityTokenHandler { MapInboundClaims = false };
+            var principal = handler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = _o.Issuer,
+                ValidateAudience = true,
+                ValidAudience = RefreshAudience,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = CreateKey(_o.Key),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromSeconds(30),
+            }, out _);
+            if (principal.FindFirst("typ")?.Value != "refresh") return null;
+            return int.TryParse(principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value, out var id) ? id : null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 }

@@ -63,7 +63,7 @@ Quy tắc chung:
 | 2 | CSDL: entity, DbContext, migration, seed | 3, 4 | 40' | ✅ |
 | 3 | Nền backend: cấu hình, JWT, Swagger, lỗi | 2, 3 | 25' | ✅ |
 | 4 | OTP + gửi Email + gửi SMS qua gateway | 1, 2 | 45' | ✅ |
-| 5 | API xác thực: đăng ký, đăng nhập, Google, bổ sung liên hệ | 1, 2 | 45' | ⬜ |
+| 5 | API xác thực: đăng ký, đăng nhập, Google, bổ sung liên hệ | 1, 2 | 45' | ✅ |
 | 6 | Phân quyền 2 ô + bảo vệ admin | 3 | 20' | ⬜ |
 | 7 | API CRUD | 4 | 40' | ⬜ |
 | 8 | API chấm công: QR, GPS, điểm tin cậy, báo cáo | 5b, 5e, 6 | 40' | ⬜ |
@@ -216,23 +216,23 @@ Thư mục: `Services/Otp/`, `Services/Messaging/`.
 
 Controller: `AuthController`, `MeController`.
 
-- [ ] 5.1 `POST /api/auth/register` `{username, password, fullName, email?, phone?, verifyChannel: "email"|"sms"}`
+- [x] 5.1 `POST /api/auth/register` `{username, password, fullName, email?, phone?, verifyChannel: "email"|"sms"}`
   - Thiếu cả email lẫn phone → 400 · `verifyChannel` trỏ tới kênh không nhập → 400
   - Trùng username/email/phone → 409
   - Tạo user `Pending`, `Role = Employee`, mật khẩu BCrypt → gửi OTP qua kênh chọn → trả `{ otpSessionId, channel, maskedDestination }`
-- [ ] 5.2 `POST /api/auth/verify-otp` `{otpSessionId, code}`
+- [x] 5.2 `POST /api/auth/verify-otp` `{otpSessionId, code}`
   - `Purpose = Register` → user `Active`, set `EmailVerified` hoặc `PhoneVerified` theo kênh → trả JWT
   - `Purpose = Login` → trả JWT
   - `Purpose = AddContact` → set verified cho kênh mới
-- [ ] 5.3 `POST /api/auth/login` `{username, password}` → sai → 401 (không nói rõ sai user hay pass) · user chưa `Active` → 403
+- [x] 5.3 `POST /api/auth/login` `{username, password}` → sai → 401 (không nói rõ sai user hay pass) · user chưa `Active` → 403
   - Chọn kênh: `PhoneVerified` → **SMS**; không thì `EmailVerified` → **Email**; không có kênh nào → 403
   - Trả `{ otpSessionId, channel, maskedDestination }`
-- [ ] 5.4 `POST /api/auth/resend-otp` `{otpSessionId}` → tạo OTP mới cùng kênh, tôn trọng 60s
-- [ ] 5.5 `POST /api/auth/google` `{idToken}` → `GoogleJsonWebSignature.ValidateAsync` với `Audience = Google:WebClientId` → tìm theo `GoogleSub`/`Email`, chưa có thì tạo `Active`, `EmailVerified = true`, `Role = Employee` → trả JWT
-- [ ] 5.6 `POST /api/auth/refresh` `{refreshToken}` → cặp token mới
-- [ ] 5.7 `GET /api/me` → thông tin user + `emailVerified`, `phoneVerified`
-- [ ] 5.8 `POST /api/me/contact` `{type: "email"|"sms", value}` → gửi OTP `AddContact` · xác nhận qua `/api/auth/verify-otp`
-- [ ] 5.9 Mask đích gửi: email `ng***@gmail.com`, SĐT `+84*****1289`
+- [x] 5.4 `POST /api/auth/resend-otp` `{otpSessionId}` → tạo OTP mới cùng kênh, tôn trọng 60s
+- [x] 5.5 `POST /api/auth/google` `{idToken}` → `GoogleJsonWebSignature.ValidateAsync` với `Audience = Google:WebClientId` → tìm theo `GoogleSub`/`Email`, chưa có thì tạo `Active`, `EmailVerified = true`, `Role = Employee` → trả JWT
+- [x] 5.6 `POST /api/auth/refresh` `{refreshToken}` → cặp token mới
+- [x] 5.7 `GET /api/me` → thông tin user + `emailVerified`, `phoneVerified`
+- [x] 5.8 `POST /api/me/contact` `{type: "email"|"sms", value}` → gửi OTP `AddContact` · xác nhận qua `/api/auth/verify-otp`
+- [x] 5.9 Mask đích gửi: email `ng***@gmail.com`, SĐT `+84*****1289`
 
 **Kiểm tra (Swagger):**
 - Đăng ký chỉ SĐT → SMS thật tới máy → verify → `phoneVerified = true`
@@ -498,3 +498,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 15:50 | 2 | 8 entity + migration Init + DbSeeder OK. Test bằng `.\SQLEXPRESS` Windows Auth: đủ 8 bảng, 2 index lọc, CHECK chặn user trống Email+SĐT, seed 3 user + 8 chức vụ. `ConnectionStrings:Default` trong appsettings.Development.json còn trống (Lợi tự điền SQL Auth); Seed:*Email/*Phone trống → user seed dùng email giả chưa xác nhận, cần điền trước Bước 5 |
 | 16:20 | 3 | Options, JwtService, Swagger Authorize, ErrorHandlingMiddleware, CORS dev, 0.0.0.0:5000, /api/health OK. Điện thoại mở http://172.16.24.207:5000/api/health ra ok sau khi Lợi mở cổng 5000 trên Firewall. Jwt:Key dev tự sinh, ConnectionStrings:Default dev = .\SQLEXPRESS Windows Auth |
 | 14:55 | 4 | OtpService, SmtpEmailSender, SmsGatewaySender, PhoneNormalizer, FakeSmsSender + project test (25 test qua). Test thật: SMS tới máy Lợi (gateway Delivered ~2.5s), mail nhận được (Gmail App Password), tắt gateway -> 502 sau ~3s; DB chi co CodeHash, OTP gui loi IsUsed=1. Da xoa endpoint tam /api/dev |
+| 15:10 | 5 | AuthService + AuthController/MeController, 56 unit test qua. Test thật: đăng ký chỉ Email → mail OTP → verify → emailVerified; login user chỉ email → OTP mail; SMS OTP thật tới máy Lợi → verify ra JWT admin; sai 5 lần → hủy (429), resend <60s → 429, dùng lại mã → 400, refresh OK. Sửa claim role JWT (trước ghi URI dài, Authorize Roles sẽ không khớp). Refresh token = JWT audience riêng (không thêm bảng). Đăng ký chỉ SĐT chỉ test bằng unit test (SĐT Lợi đã thuộc admin). Google để Bước 11 |

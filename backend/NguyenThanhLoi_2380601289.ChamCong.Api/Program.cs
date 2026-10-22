@@ -7,6 +7,7 @@ using NguyenThanhLoi_2380601289.ChamCong.Api.Data;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Middleware;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Options;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Services;
+using NguyenThanhLoi_2380601289.ChamCong.Api.Services.Auth;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Services.Messaging;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Services.Otp;
 
@@ -22,13 +23,22 @@ builder.Services.Configure<GoogleOptions>(cfg.GetSection("Google"));
 builder.Services.Configure<QrOptions>(cfg.GetSection("Qr"));
 builder.Services.Configure<GeofenceOptions>(cfg.GetSection("Geofence"));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = ctx =>
+    {
+        var msg = ctx.ModelState.Values.SelectMany(v => v.Errors)
+            .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Du lieu khong hop le" : e.ErrorMessage)
+            .FirstOrDefault() ?? "Du lieu khong hop le";
+        return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new { error = msg });
+    });
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(cfg.GetConnectionString("Default")));
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddHttpClient<ISmsSender, SmsGatewaySender>(c =>
     c.Timeout = TimeSpan.FromSeconds(cfg.GetValue("SmsGateway:TimeoutSeconds", 10)));
 builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddSingleton<IGoogleTokenVerifier, GoogleTokenVerifier>();
+builder.Services.AddScoped<AuthService>();
 
 // JWT
 var jwt = cfg.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();

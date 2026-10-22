@@ -69,7 +69,7 @@ Quy tắc chung:
 | 8 | API chấm công: QR, GPS, điểm tin cậy, báo cáo | 5b, 5e, 6 | 40' | ✅ |
 | 9 | API khuôn mặt | 5a | 20' | ✅ |
 | 10 | Nền Flutter: package, theme, API client | 7 | 25' | ✅ |
-| 11 | Màn xác thực Flutter | 1, 2 | 50' | ⬜ |
+| 11 | Màn xác thực Flutter | 1, 2 | 50' | ✅ |
 | 12 | Điều hướng theo role + 3 dashboard | 3 | 30' | ⬜ |
 | 13 | Màn CRUD (admin) | 4 | 45' | ⬜ |
 | 14 | Màn chấm công: GPS + QR + kết quả điểm | 5b, 5e, 6 | 40' | ⬜ |
@@ -325,15 +325,15 @@ Mỗi resource đủ: `GET list` (có tìm kiếm `?q=`), `GET {id}`, `POST`, `P
 
 ## Bước 11 — Màn xác thực (50') · [Đề mục 1, 2]
 
-- [ ] 11.1 **Đăng ký:** Username, Họ tên, Mật khẩu, Nhập lại mật khẩu, ô **Email**, ô **SĐT**
+- [x] 11.1 **Đăng ký:** Username, Họ tên, Mật khẩu, Nhập lại mật khẩu, ô **Email**, ô **SĐT**
   - Validate: không được trống cả Email lẫn SĐT (hiện lỗi ngay dưới 2 ô)
   - Nút "Xác nhận qua Email" chỉ bật khi Email hợp lệ; nút "Xác nhận qua SMS" chỉ bật khi SĐT hợp lệ
-- [ ] 11.2 **Màn OTP dùng chung** (đăng ký / đăng nhập / bổ sung liên hệ): **1 ô nhập 6 số**, dòng "Mã đã gửi tới `<maskedDestination>` qua `<SMS|Email>`", nút **Gửi lại** đếm ngược 60s, hiện lỗi sai/hết hạn/hết lượt
-- [ ] 11.3 **Đăng nhập:** Username + Mật khẩu → màn OTP → lưu token → điều hướng theo role (Bước 12)
-- [ ] 11.4 Nút **Đăng nhập với Google** → `idToken` → `POST /api/auth/google`
+- [x] 11.2 **Màn OTP dùng chung** (đăng ký / đăng nhập / bổ sung liên hệ): **1 ô nhập 6 số**, dòng "Mã đã gửi tới `<maskedDestination>` qua `<SMS|Email>`", nút **Gửi lại** đếm ngược 60s, hiện lỗi sai/hết hạn/hết lượt
+- [x] 11.3 **Đăng nhập:** Username + Mật khẩu → màn OTP → lưu token → điều hướng theo role (Bước 12)
+- [x] 11.4 Nút **Đăng nhập với Google** → `idToken` → `POST /api/auth/google`
   - Cần: OAuth client **Web** (lấy `serverClientId`) + OAuth client **Android** (package + SHA-1) trên Google Cloud Console
-- [ ] 11.5 Nút **Đăng nhập bằng khuôn mặt** (mở màn Bước 15)
-- [ ] 11.6 Trạng thái loading, chặn bấm 2 lần khi đang gửi OTP (SMS chờ tới 15s)
+- [x] 11.5 Nút **Đăng nhập bằng khuôn mặt** (mở màn Bước 15)
+- [x] 11.6 Trạng thái loading, chặn bấm 2 lần khi đang gửi OTP (SMS chờ tới 15s)
 
 **Kiểm tra:** đăng ký chỉ SĐT → SMS thật → vào app · đăng ký chỉ Email → mail → vào app · đăng nhập `admin` → SMS → vào trang quản trị · Google đăng nhập được trên máy Lợi.
 **Commit:** `feat(mobile-auth): dang ky 2 kenh, OTP 1 o, dang nhap, Google`
@@ -513,3 +513,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 15:50 | 8 | Rà soát thêm: giờ chấm công cố định theo giờ VN (VietnamTimeProvider, không phụ thuộc múi giờ máy chủ); chặn khởi động khi thiếu Qr:Secret (≥16 ký tự) / WindowSeconds ≤ 0; cảnh báo log khi Geofence 0,0 và chưa có Locations; khóa theo user chống bấm đúp check-in tạo 2 bản ghi; chọn ca trùng giờ theo giờ bắt đầu; báo cáo thêm RejectedCount; expiresIn QR lấy giờ 1 lần. Thêm 9.4 (faceToken) cho Bước 9. 108 unit test qua, backend khởi động OK |
 | 15:40 | 9 | FaceService + FaceController: enroll (lưu JSON), verify (cosine, ngưỡng `Face:Threshold` mặc định 0.8), login bằng mặt (sai/không có user đều 401 chung), faceToken JWT audience riêng 120s gắn userId; check-in bỏ cờ `faceMatched` của client, tự tính từ `faceToken`. 114 unit test qua. Test HTTP thật: enroll 204 (không token 401), cùng vector → matched score 1 + faceToken, vector ngẫu nhiên → false (0.13), login mặt đúng → JWT, sai → 401; check-in có faceToken → face 35đ, gửi cờ faceMatched=true giả → face 0đ. Đã xóa dữ liệu test |
 | 15:53 | 10 | Nền Flutter: 10 package (bỏ ⭐ tflite_flutter), core/{api,theme,router,config}, ApiClient (Bearer, refresh 401, SnackBar `{error}`), theme M3, quyền Android + cleartext chỉ ở debug, MainActivity → FlutterFragmentActivity (local_auth). analyze sạch, test + build APK OK. Máy thật 2107113SG hiện `Health: ok` (BASE_URL = IP LAN). Lỗi timeout ban đầu do Firewall Public chặn cổng 5000 → Lợi tạo luật `ChamCong API 5000`. Chưa thử emulator (máy không có AVD) |
+| 16:26 | 11 | Màn đăng ký (Email/SĐT, 2 nút xác nhận), OTP 1 ô + đếm ngược 60s, đăng nhập, Google, nút khuôn mặt (màn tạm tới Bước 15), SessionStore + router redirect. analyze sạch, 2 test widget. Test máy thật 2107113SG: đăng ký chỉ SĐT (SMS thật) OK, chỉ Email OK, Google OK (OAuth client Web + Android; `GOOGLE_WEB_CLIENT_ID` truyền bằng --dart-define). **Đổi theo yêu cầu: Admin đăng nhập bỏ qua OTP** (login trả token trực tiếp trong trường `auth`, thêm 1 unit test, 115 test qua) — ghi vào README Bước 19. User seed `manager1`/`employee1` vẫn cần điền Seed:*Email/*Phone mới qua OTP được |

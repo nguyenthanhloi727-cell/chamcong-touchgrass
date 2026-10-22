@@ -56,7 +56,8 @@ public class AddContactRequest
     [Required] public string Value { get; set; } = "";
 }
 
-public record OtpSessionResponse(int OtpSessionId, string Channel, string MaskedDestination);
+/// <summary>Phiên OTP. Riêng đăng nhập của Admin bỏ qua OTP: trả luôn <c>Auth</c> (OtpSessionId = 0, Channel = "none").</summary>
+public record OtpSessionResponse(int OtpSessionId, string Channel, string MaskedDestination, AuthResponse? Auth = null);
 
 public record UserInfo(
     int Id, string Username, string FullName, string? Email, bool EmailVerified,

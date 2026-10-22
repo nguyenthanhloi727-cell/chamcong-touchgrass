@@ -20,7 +20,7 @@ public class AuthController(AuthService auth) : ControllerBase
     public async Task<VerifyOtpResponse> VerifyOtp(VerifyOtpRequest req, CancellationToken ct) =>
         await auth.VerifyOtpAsync(req, ct);
 
-    /// <summary>Username + mật khẩu → gửi OTP qua SMS (nếu SĐT đã xác nhận) hoặc Email.</summary>
+    /// <summary>Username + mật khẩu → gửi OTP qua SMS (nếu SĐT đã xác nhận) hoặc Email. Admin: trả token luôn (field auth).</summary>
     [HttpPost("login")]
     public async Task<OtpSessionResponse> Login(LoginRequest req, CancellationToken ct) =>
         await auth.LoginAsync(req, ct);

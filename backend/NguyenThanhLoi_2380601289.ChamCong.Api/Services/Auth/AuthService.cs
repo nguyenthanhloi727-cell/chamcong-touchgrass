@@ -167,6 +167,10 @@ public partial class AuthService(
 
         EnsureActive(user);
 
+        // Admin đăng nhập chỉ cần username + mật khẩu, không qua OTP
+        if (user.Role == Role.Admin)
+            return new OtpSessionResponse(0, "none", "", await IssueAsync(user, ct));
+
         OtpChannel channel;
         string destination;
         if (user.PhoneVerified && user.PhoneNumber is not null)

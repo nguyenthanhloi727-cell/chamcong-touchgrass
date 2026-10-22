@@ -208,6 +208,23 @@ public class AuthServiceTests
     }
 
     [Fact]
+    public async Task Login_Admin_SkipsOtp_ReturnsTokensEvenWithoutVerifiedChannel()
+    {
+        var u = await ActiveUserAsync("root", "root@chamcong.local", false);
+        u.Role = Role.Admin;
+        await _db.SaveChangesAsync();
+
+        var s = await _auth.LoginAsync(new LoginRequest { Username = "root", Password = "Passw0rd!" });
+
+        Assert.NotNull(s.Auth);
+        Assert.Equal("Admin", s.Auth!.User.Role);
+        Assert.Empty(_sms.Sent);
+        Assert.Empty(_mail.Sent);
+        Assert.Empty(_db.OtpCodes);
+        Assert.Equal(401, await StatusOf(() => _auth.LoginAsync(new LoginRequest { Username = "root", Password = "sai" })));
+    }
+
+    [Fact]
     public async Task Login_NoVerifiedChannel_Returns403()
     {
         await ActiveUserAsync("bob", "b@b.com", false);

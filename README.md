@@ -34,7 +34,7 @@ tool/rename.dart                                        Đổi tên project theo
 ## Cài đặt
 
 ### 1. Yêu cầu
-.NET SDK 10 (khóa trong `backend/global.json`), Flutter 3.x, SQL Server (Express được), `dotnet-ef` (`dotnet tool install -g dotnet-ef`), điện thoại Android.
+.NET SDK 10 (khóa trong `backend/global.json`), Flutter 3.x, SQL Server (Express được), `dotnet-ef` (đã khai báo trong `backend/.config/dotnet-tools.json`, cài bằng `dotnet tool restore` trong thư mục `backend`), điện thoại Android.
 
 ### 2. SQL Server
 Bật **SQL Server Authentication** (Mixed Mode) và **TCP/IP** (SQL Server Configuration Manager → Protocols → TCP/IP = Enabled, cổng 1433), khởi động lại dịch vụ. Dùng Windows Authentication trên cùng máy cũng được.
@@ -60,12 +60,15 @@ Mở `appsettings.Development.json` và điền (file này **không được com
 | `Geofence:*` | Tọa độ + bán kính mặc định (hoặc tạo Địa điểm trong app) |
 | `Seed:*Password`, `Seed:*Email`, `Seed:*Phone` | Mật khẩu / liên hệ của 3 tài khoản seed |
 
-Tạo DB và chạy:
+Tạo DB và chạy (từ thư mục `backend`):
 
 ```bash
-dotnet ef database update
-dotnet run --urls http://0.0.0.0:5000
+dotnet tool restore
+dotnet ef database update --project NguyenThanhLoi_2380601289.ChamCong.Api
+dotnet run --project NguyenThanhLoi_2380601289.ChamCong.Api --urls http://0.0.0.0:5000
 ```
+
+`ef` chỉ cần `ConnectionStrings:Default` (mặc định SQL Server LocalDB trong `appsettings.json`; dùng SQL Server khác thì ghi đè trong `appsettings.Development.json`), không cần điền Jwt/Qr/Seed. Trong Visual Studio Package Manager Console: chọn **Default project** và **Startup project** đều là project Api rồi chạy `update-database`; thêm migration mới bằng `add-migration <Ten>`. Repo đã có sẵn migration, không cần tạo `InitialDatabase`.
 
 Swagger: `http://localhost:5000/swagger` · Kiểm tra sống: `http://<IP-laptop>:5000/api/health`. Mở cổng 5000 trên Windows Firewall để điện thoại truy cập được. Test: `dotnet test backend/ChamCong.slnx`.
 

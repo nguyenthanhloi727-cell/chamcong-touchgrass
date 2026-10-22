@@ -7,6 +7,8 @@ using NguyenThanhLoi_2380601289.ChamCong.Api.Data;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Middleware;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Options;
 using NguyenThanhLoi_2380601289.ChamCong.Api.Services;
+using NguyenThanhLoi_2380601289.ChamCong.Api.Services.Messaging;
+using NguyenThanhLoi_2380601289.ChamCong.Api.Services.Otp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,10 @@ builder.Services.Configure<GeofenceOptions>(cfg.GetSection("Geofence"));
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(cfg.GetConnectionString("Default")));
 builder.Services.AddSingleton<JwtService>();
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddHttpClient<ISmsSender, SmsGatewaySender>(c =>
+    c.Timeout = TimeSpan.FromSeconds(cfg.GetValue("SmsGateway:TimeoutSeconds", 10)));
+builder.Services.AddScoped<IOtpService, OtpService>();
 
 // JWT
 var jwt = cfg.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();

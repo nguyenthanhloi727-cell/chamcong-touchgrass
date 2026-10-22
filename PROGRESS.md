@@ -62,7 +62,7 @@ Quy tắc chung:
 | 1 | Khởi tạo repo + 2 project | 7 | 20' | ✅ |
 | 2 | CSDL: entity, DbContext, migration, seed | 3, 4 | 40' | ✅ |
 | 3 | Nền backend: cấu hình, JWT, Swagger, lỗi | 2, 3 | 25' | ✅ |
-| 4 | OTP + gửi Email + gửi SMS qua gateway | 1, 2 | 45' | ⬜ |
+| 4 | OTP + gửi Email + gửi SMS qua gateway | 1, 2 | 45' | ✅ |
 | 5 | API xác thực: đăng ký, đăng nhập, Google, bổ sung liên hệ | 1, 2 | 45' | ⬜ |
 | 6 | Phân quyền 2 ô + bảo vệ admin | 3 | 20' | ⬜ |
 | 7 | API CRUD | 4 | 40' | ⬜ |
@@ -191,21 +191,21 @@ Thư mục: `Data/`, `Entities/`.
 
 Thư mục: `Services/Otp/`, `Services/Messaging/`.
 
-- [ ] 4.1 `OtpService`:
+- [x] 4.1 `OtpService`:
   - Sinh mã: `RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6")` — **không dùng `System.Random`**
   - Lưu `CodeHash = SHA256(code + Otp:HashPepper + otpId)`; so sánh bằng `CryptographicOperations.FixedTimeEquals`
   - Hết hạn 5', sai tối đa 5 lần (quá → `IsUsed = true`, báo hết lượt), dùng 1 lần, gửi lại cách ≥60s (trả 429 nếu sớm)
   - Hàm: `CreateAndSendAsync(user, channel, destination, purpose)` → trả `otpSessionId` · `VerifyAsync(otpSessionId, code)`
-- [ ] 4.2 `IEmailSender` + `SmtpEmailSender` (MailKit, Gmail SMTP 587 STARTTLS, App Password). Nội dung: `[ChamCong] Ma OTP cua ban: 123456. Het han sau 5 phut.`
-- [ ] 4.3 `ISmsSender` + `SmsGatewaySender` (typed `HttpClient`, timeout 10s, Basic Auth):
+- [x] 4.2 `IEmailSender` + `SmtpEmailSender` (MailKit, Gmail SMTP 587 STARTTLS, App Password). Nội dung: `[ChamCong] Ma OTP cua ban: 123456. Het han sau 5 phut.`
+- [x] 4.3 `ISmsSender` + `SmsGatewaySender` (typed `HttpClient`, timeout 10s, Basic Auth):
   - `POST {BaseUrl}/messages` body `{"textMessage":{"text":"..."},"phoneNumbers":["+84..."],"simNumber":1}` → nhận 202 + `id`
   - Poll `GET {BaseUrl}/messages/{id}` mỗi 2s, tối đa 15s
   - Thành công **chỉ khi** `state` = `Sent` hoặc `Delivered`; `Failed` → đọc `recipients[].error`; hết giờ → lỗi timeout
   - Trả `SmsResult { Success, GatewayMessageId, State, Error }`; lưu `GatewayMessageId` vào `OtpCodes`
-- [ ] 4.4 `PhoneNormalizer`: `0xxxxxxxxx` → `+84xxxxxxxxx`; chấp nhận sẵn `+84`; sai định dạng → 400
-- [ ] 4.5 Nội dung SMS: không dấu, ≤160 ký tự, có `[ChamCong]`, **không có link**
-- [ ] 4.6 `FakeSmsSender` (ghi log) **chỉ đăng ký trong unit test**, không dùng khi chạy app
-- [ ] 4.7 Gửi SMS thất bại → backend trả **502** kèm lý do, không tạo OTP "treo" (đánh dấu `IsUsed = true`)
+- [x] 4.4 `PhoneNormalizer`: `0xxxxxxxxx` → `+84xxxxxxxxx`; chấp nhận sẵn `+84`; sai định dạng → 400
+- [x] 4.5 Nội dung SMS: không dấu, ≤160 ký tự, có `[ChamCong]`, **không có link**
+- [x] 4.6 `FakeSmsSender` (ghi log) **chỉ đăng ký trong unit test**, không dùng khi chạy app
+- [x] 4.7 Gửi SMS thất bại → backend trả **502** kèm lý do, không tạo OTP "treo" (đánh dấu `IsUsed = true`)
 
 **Kiểm tra:** endpoint tạm (chỉ Development) `POST /api/dev/sms-test` gửi 1 tin tới SĐT của Lợi → **điện thoại nhận SMS thật**, log ghi `Pending → ... → Sent`; tắt app gateway rồi gửi → nhận lỗi 502 trong ≤15s. Gửi mail test → hộp thư nhận được. **Xóa endpoint tạm** trước khi commit.
 **Commit:** `feat(otp): sinh OTP an toan, gui email MailKit, gui SMS qua SMS Gateway + poll trang thai`
@@ -497,3 +497,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 15:10 | 1 | Tạo repo public `nguyenthanhloi727-cell/chamcong-touchgrass`, push `main` OK. Máy là của Phú → remote URL có sẵn username Lợi, không đụng credential của Phú |
 | 15:50 | 2 | 8 entity + migration Init + DbSeeder OK. Test bằng `.\SQLEXPRESS` Windows Auth: đủ 8 bảng, 2 index lọc, CHECK chặn user trống Email+SĐT, seed 3 user + 8 chức vụ. `ConnectionStrings:Default` trong appsettings.Development.json còn trống (Lợi tự điền SQL Auth); Seed:*Email/*Phone trống → user seed dùng email giả chưa xác nhận, cần điền trước Bước 5 |
 | 16:20 | 3 | Options, JwtService, Swagger Authorize, ErrorHandlingMiddleware, CORS dev, 0.0.0.0:5000, /api/health OK. Điện thoại mở http://172.16.24.207:5000/api/health ra ok sau khi Lợi mở cổng 5000 trên Firewall. Jwt:Key dev tự sinh, ConnectionStrings:Default dev = .\SQLEXPRESS Windows Auth |
+| 14:55 | 4 | OtpService, SmtpEmailSender, SmsGatewaySender, PhoneNormalizer, FakeSmsSender + project test (25 test qua). Test thật: SMS tới máy Lợi (gateway Delivered ~2.5s), mail nhận được (Gmail App Password), tắt gateway -> 502 sau ~3s; DB chi co CodeHash, OTP gui loi IsUsed=1. Da xoa endpoint tam /api/dev |

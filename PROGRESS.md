@@ -73,7 +73,7 @@ Quy tắc chung:
 | 12 | Điều hướng theo role + 3 dashboard | 3 | 30' | ✅ |
 | 13 | Màn CRUD (admin) | 4 | 45' | ✅ |
 | 14 | Màn chấm công: GPS + QR + kết quả điểm | 5b, 5e, 6 | 40' | ✅ |
-| 15 | Màn khuôn mặt | 5a | 45' | ⬜ |
+| 15 | Màn khuôn mặt | 5a | 45' | ✅ |
 | 16 | Màn hồ sơ: bổ sung Email/SĐT | 1 | 20' | ⬜ |
 | 17 | `tool/rename.dart` | Luật đặt tên | 25' | ⬜ |
 | 18 | Test toàn luồng theo tiêu chí nghiệm thu | Tất cả | 30' | ⬜ |
@@ -414,14 +414,14 @@ Mỗi màn: danh sách + ô tìm kiếm, nút Thêm, bấm vào để Sửa, vu�
 
 ## Bước 15 — Màn khuôn mặt (45') · [Đề mục 5a]
 
-- [ ] 15.1 Camera trước + ML Kit Face Detection, bật `enableClassification` để lấy xác suất mở mắt
-- [ ] 15.2 **Chống ảnh giả:** yêu cầu chớp mắt (mắt mở → nhắm → mở) trong 5s
-- [ ] 15.3 **Đăng ký khuôn mặt** (trong Hồ sơ): chụp sau khi qua chớp mắt → tạo embedding → `POST /api/face/enroll`
-- [ ] 15.4 Tạo embedding:
+- [x] 15.1 Camera trước + ML Kit Face Detection, bật `enableClassification` để lấy xác suất mở mắt
+- [x] 15.2 **Chống ảnh giả:** yêu cầu chớp mắt (mắt mở → nhắm → mở) trong 5s
+- [x] 15.3 **Đăng ký khuôn mặt** (trong Hồ sơ): chụp sau khi qua chớp mắt → tạo embedding → `POST /api/face/enroll`
+- [x] 15.4 Tạo embedding:
   - Chính: ⭐ MobileFaceNet qua `tflite_flutter` (file model `.tflite`: nguồn + license **chưa chốt**, phải ghi rõ trong README)
   - Dự phòng nếu không kịp: vector từ landmark/contour ML Kit đã chuẩn hóa (độ chính xác thấp, ghi rõ trong README)
-- [ ] 15.5 **Đăng nhập bằng khuôn mặt:** nhập username → chớp mắt → embedding → `POST /api/face/login`
-- [ ] 15.6 Dùng lại ở bước chấm công (14.2.3) → `faceMatched`
+- [x] 15.5 **Đăng nhập bằng khuôn mặt:** nhập username → chớp mắt → embedding → `POST /api/face/login`
+- [x] 15.6 Dùng lại ở bước chấm công (14.2.3) → `faceMatched`
 - [ ] 15.7 **Phương án cắt:** quá giờ → dùng `local_auth` (vân tay/khóa sinh trắc của máy) cho bước xác minh, ghi rõ trong README
 
 **Kiểm tra:** đăng ký mặt Lợi → đăng nhập bằng mặt Lợi thành công · giơ ảnh tĩnh → không qua bước chớp mắt · mặt người khác → không khớp (chỉnh `Face:Threshold`).
@@ -535,3 +535,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 16:45 | 12 | Router redirect theo role (/admin /manager /employee, chặn route role khác), 3 dashboard + header Role · Chức vụ + đăng xuất. analyze sạch, 6 test qua, build APK OK. Test máy thật: admin, manager1, employee1 vào đúng màn. Các nút tới màn CRUD/QR/Chấm công hiện thông báo, làm ở Bước 13/14 |
 | 17:30 | 13 | 5 màn CRUD admin (Phòng ban, Chức vụ, Ca làm, Nhân viên có dropdown Role→Chức vụ, Chấm công) dùng chung `CrudListPage` + `FormDialog`, route con `/admin/...`. analyze sạch, 8 test qua. Sửa lỗi `setState` trả Future làm danh sách không tải lại sau khi lưu (cả 2 dashboard Bước 12 cũng bị, đã sửa). Test máy thật 2107113SG theo quy trình A–E: thêm/sửa/xóa đủ 5 màn, đổi Role ô 1 thì ô 2 đổi đúng, lưu xong danh sách cập nhật ngay. Bỏ ⭐ 13.6. Chấm công thêm tay luôn 0đ (chỉ check-in thật ở Bước 14 mới tính điểm) |
 | 20:50 | 14 | Màn QR (đếm ngược 30s, admin đặt điểm chấm công 200 m), luồng chấm công (GPS→quét QR→gửi; chưa có face nên faceMatched=false, tối đa 65 điểm → PendingReview), màn kết quả, check-out, chia sẻ vị trí + bản đồ, màn duyệt, máy thật dùng GPS thật / emulator chọn điểm trên bản đồ. analyze sạch, 9 test qua, build APK OK, đã cài lên máy thật. **Chưa test 2 máy (quét QR → duyệt) — Lợi chọn commit trước**, kiểm tra lại ở Bước 18 |
+| 21:10 | 15 | Màn chụp mặt (camera trước, ML Kit, chớp mắt mở→nhắm→mở trong 5s), đăng ký mặt (icon trên thanh tiêu đề dashboard, màn Hồ sơ làm ở Bước 16), đăng nhập bằng mặt, check-in có bước xác minh mặt gửi `faceToken`. **Embedding dùng bản dự phòng (vector đường viền ML Kit), không dùng MobileFaceNet** (model chưa chốt nguồn/license) — ghi trong README. 15.7 (`local_auth`) không cần. analyze sạch, 15 test qua, build APK OK. Máy thật: đăng ký mặt Lợi → đăng nhập bằng mặt OK; ảnh tĩnh không qua chớp mắt; mặt người khác bị từ chối |

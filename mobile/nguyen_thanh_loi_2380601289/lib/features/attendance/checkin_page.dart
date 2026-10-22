@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../core/api/api_client.dart';
+import '../face/face_api.dart';
+import '../face/face_capture_page.dart';
 import 'attendance_api.dart';
 import 'geo_service.dart';
 
@@ -59,23 +61,46 @@ class _CheckinPageState extends State<CheckinPage> {
         defaultPoint: branches.isEmpty ? null : branches.first.point);
   }
 
+  /// Chớp mắt + so khuôn mặt; null (không kèm faceToken → faceMatched = false)
+  /// nếu người dùng thoát, mặt không khớp hoặc chưa đăng ký.
+  Future<String?> _faceToken() async {
+    final emb = await FaceCapturePage.open(context);
+    if (emb == null) return null;
+    try {
+      final r = await FaceApi(widget.api).verify(emb);
+      if (!r.matched) {
+        messengerKey.currentState?.showSnackBar(
+            const SnackBar(content: Text('Khuôn mặt không khớp, vẫn gửi chấm công')));
+      }
+      return r.faceToken;
+    } catch (e) {
+      showError(e);
+      return null;
+    }
+  }
+
   Future<void> _checkIn() async {
     setState(() {
       _busy = true;
       _result = null;
-      _step = '1/3 Lấy vị trí...';
+      _step = '1/4 Lấy vị trí...';
     });
     try {
       final fix = await _locate();
       if (fix == null || !mounted) return;
-      setState(() => _step = '2/3 Quét QR...');
+      setState(() => _step = '2/4 Quét QR...');
       final qr = await Navigator.of(context)
           .push<String>(MaterialPageRoute(builder: (_) => const QrScanPage()));
-      if (qr == null) return;
-      // Bước 15 sẽ lấy faceToken ở đây; chưa có thì gửi không kèm → faceMatched = false.
-      setState(() => _step = '3/3 Gửi chấm công...');
+      if (qr == null || !mounted) return;
+      setState(() => _step = '3/4 Xác minh khuôn mặt...');
+      final faceToken = await _faceToken();
+      setState(() => _step = '4/4 Gửi chấm công...');
       final r = await _api.checkIn(
-          lat: fix.lat, lng: fix.lng, isMocked: fix.isMocked, qrToken: qr);
+          lat: fix.lat,
+          lng: fix.lng,
+          isMocked: fix.isMocked,
+          qrToken: qr,
+          faceToken: faceToken);
       if (mounted) setState(() => _result = r);
     } catch (e) {
       showError(e);

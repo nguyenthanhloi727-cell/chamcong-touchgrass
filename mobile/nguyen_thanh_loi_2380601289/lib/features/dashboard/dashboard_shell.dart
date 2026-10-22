@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../auth/session_store.dart';
 import 'dashboard_models.dart';
@@ -35,6 +36,11 @@ class DashboardShell extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
         actions: [
+          IconButton(
+            tooltip: 'Khuôn mặt',
+            icon: const Icon(Icons.face),
+            onPressed: () => context.push('/face-enroll'),
+          ),
           IconButton(
             tooltip: 'Đăng xuất',
             icon: const Icon(Icons.logout),

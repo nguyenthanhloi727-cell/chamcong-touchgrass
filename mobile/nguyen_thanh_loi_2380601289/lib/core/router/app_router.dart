@@ -17,6 +17,7 @@ import '../../features/crud/master_pages.dart';
 import '../../features/dashboard/admin_dashboard.dart';
 import '../../features/dashboard/employee_dashboard.dart';
 import '../../features/dashboard/manager_dashboard.dart';
+import '../../features/face/face_enroll_page.dart';
 import '../../features/face/face_login_page.dart';
 
 /// Màn chính theo role: Admin → /admin, Manager → /manager, còn lại → /employee.
@@ -113,7 +114,10 @@ GoRouter buildRouter(SessionStore session, AuthService auth) {
           return OtpPage(auth: auth, session: otp);
         },
       ),
-      GoRoute(path: '/face-login', builder: (_, _) => const FaceLoginPage()),
+      GoRoute(path: '/face-login', builder: (_, _) => FaceLoginPage(auth: auth)),
+      GoRoute(
+          path: '/face-enroll',
+          builder: (_, _) => FaceEnrollPage(session: session)),
     ],
   );
 }

@@ -70,6 +70,16 @@ class AuthService {
     return data['purpose'] as String;
   }
 
+  /// Đăng nhập bằng khuôn mặt; sai mặt thì backend trả 401 và ném lỗi.
+  Future<void> loginWithFace(String username, List<double> embedding) async {
+    final res = await api.dio.post('/api/face/login',
+        data: {'username': username, 'embedding': embedding});
+    final data = res.data as Map<String, dynamic>;
+    await api.tokens
+        .save(data['accessToken'] as String, data['refreshToken'] as String);
+    session.setUser(UserInfo.fromJson(data['user'] as Map<String, dynamic>));
+  }
+
   /// Trả false nếu người dùng hủy chọn tài khoản Google.
   Future<bool> loginWithGoogle() async {
     if (googleWebClientId.isEmpty) {

@@ -382,7 +382,12 @@ Mỗi màn: danh sách + ô tìm kiếm, nút Thêm, bấm vào để Sửa, vu�
 - [ ] 14.4 **5b – Chia sẻ vị trí:** nút "Chia sẻ vị trí hiện tại" gửi `lat/lng` lên server; quản lý xem tọa độ mới nhất của nhân viên (danh sách, ⭐ bản đồ)
 - [ ] 14.5 Check-out
 - [ ] 14.6 Màn duyệt `PendingReview` cho quản lý (Duyệt / Từ chối)
-- [ ] 14.7 Nút **"Đặt vị trí hiện tại làm điểm chấm công"** (Admin, đặt ở màn QR): lấy GPS điện thoại thật (geolocator, độ chính xác cao) → `POST /api/locations` bán kính mặc định **200 m** (GPS trong nhà lệch 20–50 m). Mục tiêu: chạy đúng với **vị trí thật trên máy thật**; emulator không cần hỗ trợ
+- [ ] 14.7 Nút **"Đặt vị trí hiện tại làm điểm chấm công"** (Admin, đặt ở màn QR) → `POST /api/locations` bán kính mặc định **200 m** (GPS trong nhà lệch 20–50 m)
+- [ ] 14.8 **Máy thật dùng GPS thật, emulator chọn vị trí trên bản đồ:** phân biệt bằng `device_info_plus` (`AndroidDeviceInfo.isPhysicalDevice`)
+  - Máy thật: luôn lấy GPS (geolocator), **không** cho chọn tay
+  - Emulator: màn chọn điểm trên bản đồ `flutter_map` + `latlong2` (OpenStreetMap, không cần API key), mặc định đặt ở điểm chấm công đầu tiên
+  - Admin đặt điểm chấm công trên emulator → dùng điểm đã chọn như vị trí thật
+  - Nhân viên check-in trên emulator → gửi điểm đã chọn kèm `isMocked = true` → mất điểm GPS, vào `PendingReview` cho quản lý duyệt (chặn lách geofence bằng emulator)
 
 **Kiểm tra:** máy A mở Màn QR, máy B quét → check-in thành công điểm ≥ 70 · bật GPS giả (nếu thử được) → `PendingReview` → quản lý duyệt được.
 **Commit:** `feat(mobile-attendance): GPS, QR dong, diem tin cay, duyet`

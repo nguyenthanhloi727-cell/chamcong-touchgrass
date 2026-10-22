@@ -43,13 +43,14 @@ class _ReviewPageState extends State<ReviewPage> {
   Future<void> _review(AttendanceItem a, bool approve) async {
     try {
       await _dash.review(a.id, approve: approve);
-      if (!mounted) return;
-      setState(() {
-        _data = _load();
-      });
     } catch (e) {
       showError(e);
     }
+    // Luôn tải lại (kể cả khi lỗi, vd 409 bản ghi đã được xử lý) để danh sách không bị cũ.
+    if (!mounted) return;
+    setState(() {
+      _data = _load();
+    });
   }
 
   String _nearest(AttendanceItem a, List<BranchPoint> branches) {

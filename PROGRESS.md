@@ -76,7 +76,7 @@ Quy tắc chung:
 | 15 | Màn khuôn mặt | 5a | 45' | ✅ |
 | 16 | Màn hồ sơ: bổ sung Email/SĐT | 1 | 20' | ✅ |
 | 17 | `tool/rename.dart` | Luật đặt tên | 25' | ✅ |
-| 18 | Test toàn luồng theo tiêu chí nghiệm thu | Tất cả | 30' | ⬜ |
+| 18 | Test toàn luồng theo tiêu chí nghiệm thu | Tất cả | 30' | ✅ (phần tự động; test điện thoại làm sau Bước 19) |
 | 19 | README + đổi tên 4 thành viên + nộp | 7, luật | 30' | ⬜ |
 
 > Tổng ~11 tiếng nếu làm tuần tự → **phải bỏ ⭐ và chạy song song** (vd: trong lúc Claude Code làm backend, mày test gateway / chuẩn bị máy). Mốc cứng: **20:30 bắt đầu Bước 18**, **21:30 bắt đầu Bước 19**.
@@ -469,7 +469,7 @@ Trước khi test: gateway `/health` = 200, SIM 1 còn tiền, điện thoại +
 |---|---|---|---|
 | 18.1 | Đăng ký chỉ SĐT → nhận **SMS thật** → vào app | 1 | ⬜ |
 | 18.2 | Đăng ký chỉ Email → nhận mail → vào app | 1 | ⬜ |
-| 18.3 | Đăng ký trống cả 2 → bị chặn | 1 | ⬜ |
+| 18.3 | Đăng ký trống cả 2 → bị chặn | 1 | ✅ |
 | 18.4 | Đăng ký bằng Google | 1 | ⬜ |
 | 18.5 | Đăng nhập user + pass + OTP SMS | 2 | ⬜ |
 | 18.6 | OTP sai 5 lần → hết lượt · quá 5' → hết hạn · gửi lại trước 60s → bị chặn · OTP đã dùng → không dùng lại | 2 | ⬜ |
@@ -481,9 +481,11 @@ Trước khi test: gateway `/health` = 200, SIM 1 còn tiền, điện thoại +
 | 18.12 | Check-in ngoài bán kính → mất điểm GPS; chia sẻ vị trí → quản lý thấy | 5b | ⬜ |
 | 18.13 | QR mới → hợp lệ; QR cũ → không hợp lệ | 5e | ⬜ |
 | 18.14 | Điểm tin cậy thấp → `PendingReview` → quản lý duyệt | 6 | ⬜ |
-| 18.15 | DB chỉ có `CodeHash`; repo không có mật khẩu/IP gateway/App Password | Bảo mật | ⬜ |
+| 18.15 | DB chỉ có `CodeHash`; repo không có mật khẩu/IP gateway/App Password | Bảo mật | ✅ |
 
 Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong README.
+
+> Các mục còn ⬜ (cần điện thoại) do Lợi test một lượt sau Bước 19; lỗi nào phát sinh thì sửa rồi commit bổ sung.
 **Commit:** `test: kiem thu toan luong, sua loi`
 
 ---
@@ -538,3 +540,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 21:10 | 15 | Màn chụp mặt (camera trước, ML Kit, chớp mắt mở→nhắm→mở trong 5s), đăng ký mặt (icon trên thanh tiêu đề dashboard, màn Hồ sơ làm ở Bước 16), đăng nhập bằng mặt, check-in có bước xác minh mặt gửi `faceToken`. **Embedding dùng bản dự phòng (vector đường viền ML Kit), không dùng MobileFaceNet** (model chưa chốt nguồn/license) — ghi trong README. 15.7 (`local_auth`) không cần. analyze sạch, 15 test qua, build APK OK. Máy thật: đăng ký mặt Lợi → đăng nhập bằng mặt OK; ảnh tĩnh không qua chớp mắt; mặt người khác bị từ chối |
 | 22:00 | 16 | Màn Hồ sơ (`/profile`, mở từ icon trên thanh tiêu đề): nhãn Đã xác nhận / Chưa xác nhận / Chưa có cho Email + SĐT, nút Thêm/Xác nhận → `POST /api/me/contact` → màn OTP dùng chung (route `/profile/otp`), nút đăng ký khuôn mặt. analyze sạch, 16 test qua. Test máy thật: thêm SĐT → SMS thật → xác nhận; đăng nhập lại OTP đi qua SMS |
 | 22:20 | 17 | `tool/rename.dart` (chỉ dart:io, có `--dry-run`): tự đọc tên cũ từ pubspec/.csproj/android:label, sửa nội dung + đổi tên thư mục/file (kotlin, mobile, backend, Tests), giữ BOM, bỏ qua CLAUDE/PROGRESS/PLAN. Test trên bản copy: chạy cho Phú → `flutter clean/pub get`, analyze sạch, 16 test Flutter, `dotnet build` 0 lỗi, 115 test backend, build APK debug OK, quét tên cũ = 0; chạy ngược về Lợi → 158 file giống hệt bản gốc. Lưu ý: nếu Gradle daemon còn giữ thư mục `mobile/` thì đổi tên bị `Access denied` → `gradlew --stop` rồi chạy lại |
+| 23:00 | 18 | Phần tự động: 115 test backend + 16 test Flutter qua, analyze sạch, repo không lộ bí mật. API thật: đăng ký trống 2 kênh = 400, không token = 401, admin tự hạ quyền = 403, QR mới OK. Các mục cần điện thoại (18.1, 18.2, 18.4–18.8, 18.10–18.14) **chưa test** — Lợi chọn test 1 lượt sau Bước 19 |

@@ -18,7 +18,9 @@ class AdminDashboard extends StatelessWidget {
       (Icons.schedule, 'Ca làm', '/admin/shifts', 13),
       (Icons.fact_check, 'Chấm công', '/admin/attendances', 13),
       (Icons.bar_chart, 'Báo cáo', null, 14),
-      (Icons.qr_code_2, 'Màn QR', null, 14),
+      (Icons.qr_code_2, 'Màn QR', '/admin/qr', 14),
+      (Icons.rule, 'Duyệt chấm công', '/admin/review', 14),
+      (Icons.location_searching, 'Vị trí nhân viên', '/admin/team', 14),
     ];
     return DashboardShell(
       session: session,

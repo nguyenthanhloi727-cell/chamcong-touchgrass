@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../auth/session_store.dart';
 import 'dashboard_api.dart';
@@ -69,7 +70,10 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
               SizedBox(
                 height: 96,
                 child: FilledButton.icon(
-                  onPressed: () => comingSoon(context, 'Chấm công', 14),
+                  onPressed: () async {
+                    await context.push('/employee/checkin');
+                    _reload();
+                  },
                   icon: const Icon(Icons.fingerprint, size: 40),
                   label:
                       const Text('Chấm công', style: TextStyle(fontSize: 24)),

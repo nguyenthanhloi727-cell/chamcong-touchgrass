@@ -72,7 +72,7 @@ Quy tắc chung:
 | 11 | Màn xác thực Flutter | 1, 2 | 50' | ✅ |
 | 12 | Điều hướng theo role + 3 dashboard | 3 | 30' | ✅ |
 | 13 | Màn CRUD (admin) | 4 | 45' | ✅ |
-| 14 | Màn chấm công: GPS + QR + kết quả điểm | 5b, 5e, 6 | 40' | ⬜ |
+| 14 | Màn chấm công: GPS + QR + kết quả điểm | 5b, 5e, 6 | 40' | ✅ |
 | 15 | Màn khuôn mặt | 5a | 45' | ⬜ |
 | 16 | Màn hồ sơ: bổ sung Email/SĐT | 1 | 20' | ⬜ |
 | 17 | `tool/rename.dart` | Luật đặt tên | 25' | ⬜ |
@@ -390,18 +390,18 @@ Mỗi màn: danh sách + ô tìm kiếm, nút Thêm, bấm vào để Sửa, vu�
 
 ## Bước 14 — Màn chấm công (40') · [Đề mục 5b, 5e, 6]
 
-- [ ] 14.1 **Màn QR (Admin/Quản lý):** gọi `/api/qr/current` mỗi 30s, hiện QR to bằng `qr_flutter` + đồng hồ đếm ngược
-- [ ] 14.2 **Luồng Chấm công (Nhân viên):**
+- [x] 14.1 **Màn QR (Admin/Quản lý):** gọi `/api/qr/current` mỗi 30s, hiện QR to bằng `qr_flutter` + đồng hồ đếm ngược
+- [x] 14.2 **Luồng Chấm công (Nhân viên):**
   1. Xin quyền vị trí → lấy `lat/lng` + `isMocked` (geolocator)
   2. Quét QR (`mobile_scanner`)
   3. Xác minh khuôn mặt (Bước 15; chưa xong thì `faceMatched = false`)
   4. Gửi `check-in`
-- [ ] 14.3 **Màn kết quả (Đề mục 6):** điểm tin cậy to + 4 dòng chi tiết (Khuôn mặt / GPS / QR / Không GPS giả, mỗi dòng ✔/✖ + điểm) + trạng thái
-- [ ] 14.4 **5b – Chia sẻ vị trí:** nút "Chia sẻ vị trí hiện tại" gửi `lat/lng` lên server; quản lý xem tọa độ mới nhất của nhân viên (danh sách, ⭐ bản đồ)
-- [ ] 14.5 Check-out
-- [ ] 14.6 Màn duyệt `PendingReview` cho quản lý (Duyệt / Từ chối): mỗi dòng hiện **vị trí đã báo** (`lat/lng`, nút mở Google Maps), khoảng cách tới chi nhánh, nhãn "GPS giả / emulator" nếu `isMocked`. Từ chối = `Rejected`, không tính công (không cần xóa)
-- [ ] 14.7 Nút **"Đặt vị trí hiện tại làm điểm chấm công"** (Admin, đặt ở màn QR) → `POST /api/locations` bán kính mặc định **200 m** (GPS trong nhà lệch 20–50 m)
-- [ ] 14.8 **Máy thật dùng GPS thật, emulator chọn vị trí trên bản đồ:** phân biệt bằng `device_info_plus` (`AndroidDeviceInfo.isPhysicalDevice`)
+- [x] 14.3 **Màn kết quả (Đề mục 6):** điểm tin cậy to + 4 dòng chi tiết (Khuôn mặt / GPS / QR / Không GPS giả, mỗi dòng ✔/✖ + điểm) + trạng thái
+- [x] 14.4 **5b – Chia sẻ vị trí:** nút "Chia sẻ vị trí hiện tại" gửi `lat/lng` lên server; quản lý xem tọa độ mới nhất của nhân viên (danh sách, ⭐ bản đồ)
+- [x] 14.5 Check-out
+- [x] 14.6 Màn duyệt `PendingReview` cho quản lý (Duyệt / Từ chối): mỗi dòng hiện **vị trí đã báo** (`lat/lng`, nút mở Google Maps), khoảng cách tới chi nhánh, nhãn "GPS giả / emulator" nếu `isMocked`. Từ chối = `Rejected`, không tính công (không cần xóa)
+- [x] 14.7 Nút **"Đặt vị trí hiện tại làm điểm chấm công"** (Admin, đặt ở màn QR) → `POST /api/locations` bán kính mặc định **200 m** (GPS trong nhà lệch 20–50 m)
+- [x] 14.8 **Máy thật dùng GPS thật, emulator chọn vị trí trên bản đồ:** phân biệt bằng `device_info_plus` (`AndroidDeviceInfo.isPhysicalDevice`)
   - Máy thật: luôn lấy GPS (geolocator), **không** cho chọn tay
   - Emulator: màn chọn điểm trên bản đồ `flutter_map` + `latlong2` (OpenStreetMap, không cần API key), mặc định đặt ở điểm chấm công đầu tiên
   - Admin đặt điểm chấm công trên emulator → dùng điểm đã chọn như vị trí thật
@@ -534,3 +534,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 16:26 | 11 | Màn đăng ký (Email/SĐT, 2 nút xác nhận), OTP 1 ô + đếm ngược 60s, đăng nhập, Google, nút khuôn mặt (màn tạm tới Bước 15), SessionStore + router redirect. analyze sạch, 2 test widget. Test máy thật 2107113SG: đăng ký chỉ SĐT (SMS thật) OK, chỉ Email OK, Google OK (OAuth client Web + Android; `GOOGLE_WEB_CLIENT_ID` truyền bằng --dart-define). **Đổi theo yêu cầu: Admin đăng nhập bỏ qua OTP** (login trả token trực tiếp trong trường `auth`, thêm 1 unit test, 115 test qua) — ghi vào README Bước 19. User seed `manager1`/`employee1` vẫn cần điền Seed:*Email/*Phone mới qua OTP được |
 | 16:45 | 12 | Router redirect theo role (/admin /manager /employee, chặn route role khác), 3 dashboard + header Role · Chức vụ + đăng xuất. analyze sạch, 6 test qua, build APK OK. Test máy thật: admin, manager1, employee1 vào đúng màn. Các nút tới màn CRUD/QR/Chấm công hiện thông báo, làm ở Bước 13/14 |
 | 17:30 | 13 | 5 màn CRUD admin (Phòng ban, Chức vụ, Ca làm, Nhân viên có dropdown Role→Chức vụ, Chấm công) dùng chung `CrudListPage` + `FormDialog`, route con `/admin/...`. analyze sạch, 8 test qua. Sửa lỗi `setState` trả Future làm danh sách không tải lại sau khi lưu (cả 2 dashboard Bước 12 cũng bị, đã sửa). Test máy thật 2107113SG theo quy trình A–E: thêm/sửa/xóa đủ 5 màn, đổi Role ô 1 thì ô 2 đổi đúng, lưu xong danh sách cập nhật ngay. Bỏ ⭐ 13.6. Chấm công thêm tay luôn 0đ (chỉ check-in thật ở Bước 14 mới tính điểm) |
+| 20:50 | 14 | Màn QR (đếm ngược 30s, admin đặt điểm chấm công 200 m), luồng chấm công (GPS→quét QR→gửi; chưa có face nên faceMatched=false, tối đa 65 điểm → PendingReview), màn kết quả, check-out, chia sẻ vị trí + bản đồ, màn duyệt, máy thật dùng GPS thật / emulator chọn điểm trên bản đồ. analyze sạch, 9 test qua, build APK OK, đã cài lên máy thật. **Chưa test 2 máy (quét QR → duyệt) — Lợi chọn commit trước**, kiểm tra lại ở Bước 18 |

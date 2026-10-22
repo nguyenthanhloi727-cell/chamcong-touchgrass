@@ -7,6 +7,8 @@ class AttendanceItem {
   final String? shiftName;
   final DateTime checkInAt;
   final DateTime? checkOutAt;
+  final double lat;
+  final double lng;
   final bool isMocked;
   final int trustScore;
   final String status; // OnTime | Late | PendingReview | Rejected
@@ -20,6 +22,8 @@ class AttendanceItem {
     this.shiftName,
     required this.checkInAt,
     this.checkOutAt,
+    this.lat = 0,
+    this.lng = 0,
     required this.isMocked,
     required this.trustScore,
     required this.status,
@@ -36,6 +40,8 @@ class AttendanceItem {
         checkOutAt: j['checkOutAt'] == null
             ? null
             : DateTime.parse(j['checkOutAt'] as String),
+        lat: (j['lat'] as num?)?.toDouble() ?? 0,
+        lng: (j['lng'] as num?)?.toDouble() ?? 0,
         isMocked: j['isMocked'] as bool? ?? false,
         trustScore: j['trustScore'] as int? ?? 0,
         status: j['status'] as String,

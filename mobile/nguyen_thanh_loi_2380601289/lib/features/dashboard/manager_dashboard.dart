@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/api/api_client.dart';
 import '../auth/session_store.dart';
@@ -54,7 +55,7 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
       title: 'Quản lý',
       onRefresh: _reload,
       floating: FloatingActionButton.extended(
-        onPressed: () => comingSoon(context, 'Màn QR', 14),
+        onPressed: () => context.push('/manager/qr'),
         icon: const Icon(Icons.qr_code_2),
         label: const Text('Màn QR'),
       ),
@@ -70,6 +71,20 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
             children: [
               Text('Hôm nay: ${today.length} lượt chấm công · '
                   '${late.length} đi muộn · ${pending.length} chờ duyệt'),
+              const SizedBox(height: 8),
+              Wrap(spacing: 8, children: [
+                ActionChip(
+                    avatar: const Icon(Icons.rule, size: 18),
+                    label: const Text('Duyệt chi tiết'),
+                    onPressed: () async {
+                      await context.push('/manager/review');
+                      _reload();
+                    }),
+                ActionChip(
+                    avatar: const Icon(Icons.location_searching, size: 18),
+                    label: const Text('Vị trí nhân viên'),
+                    onPressed: () => context.push('/manager/team')),
+              ]),
               const SizedBox(height: 16),
               Text('Chờ duyệt', style: text.titleMedium),
               if (pending.isEmpty) const ListTile(title: Text('Không có')),

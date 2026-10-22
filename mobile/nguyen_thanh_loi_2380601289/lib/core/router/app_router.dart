@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/attendance/checkin_page.dart';
+import '../../features/attendance/qr_page.dart';
+import '../../features/attendance/review_page.dart';
+import '../../features/attendance/team_location_page.dart';
 import '../../features/auth/auth_models.dart';
 import '../../features/auth/auth_service.dart';
 import '../../features/auth/login_page.dart';
@@ -66,14 +70,38 @@ GoRouter buildRouter(SessionStore session, AuthService auth) {
           GoRoute(
               path: 'attendances',
               builder: (_, _) => AttendancesPage(api: session.api)),
+          GoRoute(
+              path: 'qr',
+              builder: (_, _) => QrPage(api: session.api, isAdmin: true)),
+          GoRoute(
+              path: 'review', builder: (_, _) => ReviewPage(api: session.api)),
+          GoRoute(
+              path: 'team',
+              builder: (_, _) => TeamLocationPage(api: session.api)),
         ],
       ),
       GoRoute(
           path: '/manager',
-          builder: (_, _) => ManagerDashboard(session: session)),
+          builder: (_, _) => ManagerDashboard(session: session),
+          routes: [
+            GoRoute(
+                path: 'qr',
+                builder: (_, _) => QrPage(api: session.api, isAdmin: false)),
+            GoRoute(
+                path: 'review',
+                builder: (_, _) => ReviewPage(api: session.api)),
+            GoRoute(
+                path: 'team',
+                builder: (_, _) => TeamLocationPage(api: session.api)),
+          ]),
       GoRoute(
           path: '/employee',
-          builder: (_, _) => EmployeeDashboard(session: session)),
+          builder: (_, _) => EmployeeDashboard(session: session),
+          routes: [
+            GoRoute(
+                path: 'checkin',
+                builder: (_, _) => CheckinPage(api: session.api)),
+          ]),
       GoRoute(path: '/login', builder: (_, _) => LoginPage(auth: auth)),
       GoRoute(path: '/register', builder: (_, _) => RegisterPage(auth: auth)),
       GoRoute(

@@ -382,6 +382,7 @@ Mỗi màn: danh sách + ô tìm kiếm, nút Thêm, bấm vào để Sửa, vu�
 - [ ] 14.4 **5b – Chia sẻ vị trí:** nút "Chia sẻ vị trí hiện tại" gửi `lat/lng` lên server; quản lý xem tọa độ mới nhất của nhân viên (danh sách, ⭐ bản đồ)
 - [ ] 14.5 Check-out
 - [ ] 14.6 Màn duyệt `PendingReview` cho quản lý (Duyệt / Từ chối)
+- [ ] 14.7 Nút **"Đặt vị trí hiện tại làm điểm chấm công"** (Admin, đặt ở màn QR): lấy GPS điện thoại thật (geolocator, độ chính xác cao) → `POST /api/locations` bán kính mặc định **200 m** (GPS trong nhà lệch 20–50 m). Mục tiêu: chạy đúng với **vị trí thật trên máy thật**; emulator không cần hỗ trợ
 
 **Kiểm tra:** máy A mở Màn QR, máy B quét → check-in thành công điểm ≥ 70 · bật GPS giả (nếu thử được) → `PendingReview` → quản lý duyệt được.
 **Commit:** `feat(mobile-attendance): GPS, QR dong, diem tin cay, duyet`

@@ -7,6 +7,9 @@ import '../../features/auth/login_page.dart';
 import '../../features/auth/otp_page.dart';
 import '../../features/auth/register_page.dart';
 import '../../features/auth/session_store.dart';
+import '../../features/crud/attendances_page.dart';
+import '../../features/crud/employees_page.dart';
+import '../../features/crud/master_pages.dart';
 import '../../features/dashboard/admin_dashboard.dart';
 import '../../features/dashboard/employee_dashboard.dart';
 import '../../features/dashboard/manager_dashboard.dart';
@@ -46,7 +49,25 @@ GoRouter buildRouter(SessionStore session, AuthService auth) {
             const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       GoRoute(
-          path: '/admin', builder: (_, _) => AdminDashboard(session: session)),
+        path: '/admin',
+        builder: (_, _) => AdminDashboard(session: session),
+        routes: [
+          GoRoute(
+              path: 'employees',
+              builder: (_, _) => EmployeesPage(api: session.api)),
+          GoRoute(
+              path: 'departments',
+              builder: (_, _) => DepartmentsPage(api: session.api)),
+          GoRoute(
+              path: 'positions',
+              builder: (_, _) => PositionsPage(api: session.api)),
+          GoRoute(
+              path: 'shifts', builder: (_, _) => ShiftsPage(api: session.api)),
+          GoRoute(
+              path: 'attendances',
+              builder: (_, _) => AttendancesPage(api: session.api)),
+        ],
+      ),
       GoRoute(
           path: '/manager',
           builder: (_, _) => ManagerDashboard(session: session)),

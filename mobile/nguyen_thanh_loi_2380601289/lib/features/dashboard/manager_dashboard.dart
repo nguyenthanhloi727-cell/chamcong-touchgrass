@@ -30,7 +30,9 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
 
   Future<void> _reload() async {
     final f = _load();
-    setState(() => _data = f);
+    setState(() {
+      _data = f;
+    });
     try {
       await f;
     } catch (_) {}

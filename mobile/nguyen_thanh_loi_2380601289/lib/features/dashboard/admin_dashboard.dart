@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../auth/session_store.dart';
 import 'dashboard_shell.dart';
 
-/// Dashboard Admin: lưới menu quản trị. Các màn đích làm ở Bước 13/14.
+/// Dashboard Admin: lưới menu quản trị. Màn CRUD ở Bước 13, báo cáo/QR ở Bước 14.
 class AdminDashboard extends StatelessWidget {
   final SessionStore session;
   const AdminDashboard({super.key, required this.session});
 
   @override
   Widget build(BuildContext context) {
-    final items = <(IconData, String, int)>[
-      (Icons.people, 'Nhân viên', 13),
-      (Icons.apartment, 'Phòng ban', 13),
-      (Icons.badge, 'Chức vụ', 13),
-      (Icons.schedule, 'Ca làm', 13),
-      (Icons.fact_check, 'Chấm công', 13),
-      (Icons.bar_chart, 'Báo cáo', 14),
-      (Icons.qr_code_2, 'Màn QR', 14),
+    final items = <(IconData, String, String?, int)>[
+      (Icons.people, 'Nhân viên', '/admin/employees', 13),
+      (Icons.apartment, 'Phòng ban', '/admin/departments', 13),
+      (Icons.badge, 'Chức vụ', '/admin/positions', 13),
+      (Icons.schedule, 'Ca làm', '/admin/shifts', 13),
+      (Icons.fact_check, 'Chấm công', '/admin/attendances', 13),
+      (Icons.bar_chart, 'Báo cáo', null, 14),
+      (Icons.qr_code_2, 'Màn QR', null, 14),
     ];
     return DashboardShell(
       session: session,
@@ -28,11 +29,13 @@ class AdminDashboard extends StatelessWidget {
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
         children: [
-          for (final (icon, label, step) in items)
+          for (final (icon, label, path, step) in items)
             Card(
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
-                onTap: () => comingSoon(context, label, step),
+                onTap: () => path != null
+                    ? context.push(path)
+                    : comingSoon(context, label, step),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

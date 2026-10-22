@@ -71,7 +71,7 @@ Quy tắc chung:
 | 10 | Nền Flutter: package, theme, API client | 7 | 25' | ✅ |
 | 11 | Màn xác thực Flutter | 1, 2 | 50' | ✅ |
 | 12 | Điều hướng theo role + 3 dashboard | 3 | 30' | ✅ |
-| 13 | Màn CRUD (admin) | 4 | 45' | ⬜ |
+| 13 | Màn CRUD (admin) | 4 | 45' | ✅ |
 | 14 | Màn chấm công: GPS + QR + kết quả điểm | 5b, 5e, 6 | 40' | ⬜ |
 | 15 | Màn khuôn mặt | 5a | 45' | ⬜ |
 | 16 | Màn hồ sơ: bổ sung Email/SĐT | 1 | 20' | ⬜ |
@@ -358,14 +358,32 @@ Mỗi resource đủ: `GET list` (có tìm kiếm `?q=`), `GET {id}`, `POST`, `P
 
 Mỗi màn: danh sách + ô tìm kiếm, nút Thêm, bấm vào để Sửa, vuốt/nút để Xóa (hộp xác nhận).
 
-- [ ] 13.1 Phòng ban
-- [ ] 13.2 Chức vụ (chọn RoleGroup Quản lý / Nhân viên)
-- [ ] 13.3 Ca làm (chọn giờ bằng TimePicker)
-- [ ] 13.4 Nhân viên — form có **2 dropdown**: ô 1 **Role** (Quản lý / Nhân viên), ô 2 **Chức vụ** lọc theo ô 1 (đổi ô 1 → reset ô 2); dropdown Phòng ban; Email, SĐT
-- [ ] 13.5 Chấm công (admin xem tất cả, lọc theo ngày; sửa trạng thái)
+- [x] 13.1 Phòng ban
+- [x] 13.2 Chức vụ (chọn RoleGroup Quản lý / Nhân viên)
+- [x] 13.3 Ca làm (chọn giờ bằng TimePicker)
+- [x] 13.4 Nhân viên — form có **2 dropdown**: ô 1 **Role** (Quản lý / Nhân viên), ô 2 **Chức vụ** lọc theo ô 1 (đổi ô 1 → reset ô 2); dropdown Phòng ban; Email, SĐT
+- [x] 13.5 Chấm công (admin xem tất cả, lọc theo ngày; sửa trạng thái)
 - [ ] 13.6 ⭐ Địa điểm · ⭐ Đơn nghỉ phép (nhân viên gửi, quản lý duyệt)
 
 **Kiểm tra:** thêm/sửa/xóa được ở cả 5 màn; đổi Role ô 1 → ô 2 đổi danh sách đúng.
+
+**Quy trình test trên máy thật** (đăng nhập `admin` / `Admin@123`, không cần OTP; backend chạy, điện thoại cùng mạng; cài app: `flutter run -d <id máy> --dart-define=BASE_URL=http://<IP-laptop>:5000`):
+- **A. Phòng ban:** mở ô Phòng ban → **+** thêm `Test PB` (chọn trưởng phòng) → bản ghi hiện ngay, không cần thoát ra vào lại → sửa thành `Test PB 2` → danh sách đổi ngay → gõ `PB 2` vào ô tìm kiếm + Enter, chỉ còn bản ghi đó → xóa (hộp xác nhận) → biến mất.
+- **B. Chức vụ:** thêm `Test CV` nhóm Quản lý → sửa sang nhóm Nhân viên, dòng phụ đổi theo → xóa.
+- **C. Ca làm:** thêm `Test Ca`, chọn 07:00–15:30 bằng TimePicker → sửa giờ ra 14:00, dòng phụ hiện `07:00 - 14:00` → xóa.
+- **D. Nhân viên:**
+  1. Role mặc định Nhân viên → ô Chức vụ chỉ có Kế toán, Thủ kho, Lễ tân, Bảo vệ, Lao công.
+  2. Chọn Bảo vệ rồi đổi Role sang Quản lý → ô Chức vụ về trống, chỉ còn Trưởng phòng Nhân sự, Quản lý Kho, Quản lý Tài chính.
+  3. Chọn Role Admin → ô Chức vụ biến mất.
+  4. Thêm `test_nv1` (Nhân viên, Kế toán, mật khẩu tạm `Abc12345`, có Email, chọn phòng ban) → hiện ngay.
+  5. Bỏ trống cả Email lẫn SĐT → báo lỗi dưới ô SĐT.
+  6. Sửa `test_nv1`: đổi họ tên; đổi Role sang Quản lý + Trưởng phòng Nhân sự; đặt trạng thái Khóa (dòng phụ hiện "Đã khóa").
+  7. Xóa `test_nv1`.
+  8. Xóa phòng ban còn nhân viên → hiện lỗi 409, không xóa được.
+- **E. Chấm công:** mặc định lọc hôm nay; chip ngày để đổi ngày, "Xem tất cả" bỏ lọc → **+** thêm (nhân viên, giờ vào, Đi muộn) → sửa trạng thái sang Đúng giờ → xóa.
+- **Đạt khi:** cả 5 màn thêm/sửa/xóa được và danh sách cập nhật ngay sau khi lưu; dropdown Role → Chức vụ lọc và reset đúng; lỗi từ server hiện ngay trong hộp thoại.
+- **Đã tự kiểm tra:** `flutter analyze` sạch, 8 test qua (gồm `employee_form_test` cho dropdown Role → Chức vụ và `crud_reload_test` cho lỗi không tải lại sau khi lưu); payload từng màn gọi đúng với backend thật (201/200/204), dữ liệu test đã xóa.
+
 **Commit:** `feat(mobile-crud): man CRUD + dropdown role/chuc vu`
 
 ---
@@ -515,3 +533,4 @@ Lỗi nào sửa ngay; không kịp → ghi vào mục "Hạn chế" trong READM
 | 15:53 | 10 | Nền Flutter: 10 package (bỏ ⭐ tflite_flutter), core/{api,theme,router,config}, ApiClient (Bearer, refresh 401, SnackBar `{error}`), theme M3, quyền Android + cleartext chỉ ở debug, MainActivity → FlutterFragmentActivity (local_auth). analyze sạch, test + build APK OK. Máy thật 2107113SG hiện `Health: ok` (BASE_URL = IP LAN). Lỗi timeout ban đầu do Firewall Public chặn cổng 5000 → Lợi tạo luật `ChamCong API 5000`. Chưa thử emulator (máy không có AVD) |
 | 16:26 | 11 | Màn đăng ký (Email/SĐT, 2 nút xác nhận), OTP 1 ô + đếm ngược 60s, đăng nhập, Google, nút khuôn mặt (màn tạm tới Bước 15), SessionStore + router redirect. analyze sạch, 2 test widget. Test máy thật 2107113SG: đăng ký chỉ SĐT (SMS thật) OK, chỉ Email OK, Google OK (OAuth client Web + Android; `GOOGLE_WEB_CLIENT_ID` truyền bằng --dart-define). **Đổi theo yêu cầu: Admin đăng nhập bỏ qua OTP** (login trả token trực tiếp trong trường `auth`, thêm 1 unit test, 115 test qua) — ghi vào README Bước 19. User seed `manager1`/`employee1` vẫn cần điền Seed:*Email/*Phone mới qua OTP được |
 | 16:45 | 12 | Router redirect theo role (/admin /manager /employee, chặn route role khác), 3 dashboard + header Role · Chức vụ + đăng xuất. analyze sạch, 6 test qua, build APK OK. Test máy thật: admin, manager1, employee1 vào đúng màn. Các nút tới màn CRUD/QR/Chấm công hiện thông báo, làm ở Bước 13/14 |
+| 17:30 | 13 | 5 màn CRUD admin (Phòng ban, Chức vụ, Ca làm, Nhân viên có dropdown Role→Chức vụ, Chấm công) dùng chung `CrudListPage` + `FormDialog`, route con `/admin/...`. analyze sạch, 8 test qua. Sửa lỗi `setState` trả Future làm danh sách không tải lại sau khi lưu (cả 2 dashboard Bước 12 cũng bị, đã sửa). Test máy thật 2107113SG theo quy trình A–E: thêm/sửa/xóa đủ 5 màn, đổi Role ô 1 thì ô 2 đổi đúng, lưu xong danh sách cập nhật ngay. Bỏ ⭐ 13.6. Chấm công thêm tay luôn 0đ (chỉ check-in thật ở Bước 14 mới tính điểm) |
